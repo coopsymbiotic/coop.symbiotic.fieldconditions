@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/fieldconditions</path>
+    <page_callback>CRM_Fieldconditions_Page_ListFieldMapping</page_callback>
+    <title>ListFieldMapping</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/fieldconditions/add-map</path>
+    <page_callback>CRM_Fieldconditions_Form_FieldMapping</page_callback>
+    <title>FieldMapping</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/fieldconditions/filter-values</path>
+    <page_callback>CRM_Fieldconditions_Page_ListFieldFilterValues</page_callback>
+    <title>ListFieldFilterValues</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
