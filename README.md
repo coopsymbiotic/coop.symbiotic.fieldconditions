@@ -61,7 +61,7 @@ This is a rather terrible quick and dirty example. It can be improved in many wa
 
         $select.change();
         $('.crm-case-customdata-row-' + dest_field_id + ' > .crm-loading-element').remove();
-        CRM.ddmpesChangeInProgress = false;
+        CRM.myChangeInProgress = false;
       },
       error: function(data) {
         CRM.alert("Network communication error. Please try again.");
