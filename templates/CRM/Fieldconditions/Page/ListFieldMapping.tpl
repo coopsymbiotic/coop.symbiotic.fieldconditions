@@ -1,7 +1,5 @@
 <h3>Field conditionals</h3>
 
-<div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/add-map?reset=1" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field dependency filter</span></a></div>
-
 <table>
 <tr>
   <th>ID</th><th>Source field</th><th>Destination field</th><th></th>
@@ -15,3 +13,5 @@
   </tr>
 {/foreach}
 </table>
+
+<div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/add-map?reset=1" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field dependency filter</span></a></div>

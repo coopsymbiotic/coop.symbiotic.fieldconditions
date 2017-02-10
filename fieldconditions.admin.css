@@ -1,0 +1,11 @@
+#fieldconditions-filter-values > li {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  list-style: none;
+  padding: 1em;
+  margin: 1em 0;
+}
+
+#fieldconditions-filter-values > li > ol > li {
+  list-style: none;
+}

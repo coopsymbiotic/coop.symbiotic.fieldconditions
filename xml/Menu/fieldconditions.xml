@@ -18,4 +18,16 @@
     <title>ListFieldFilterValues</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/admin/fieldconditions/filter-values/edit</path>
+    <page_callback>CRM_Fieldconditions_Form_FieldFilterValue</page_callback>
+    <title>FieldFilterValue</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/fieldconditions/ajax/field-filter-values</path>
+    <page_callback>CRM_Fieldconditions_Page_Ajax_FieldFilterValues</page_callback>
+    <title>Ajax</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
