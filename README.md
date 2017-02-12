@@ -11,6 +11,8 @@ For example,
 
 This extension may help.
 
+In some ways, it is similar to how the state_province/country fields work, but for custom fields.
+
 BIG WARNING
 ===========
 
