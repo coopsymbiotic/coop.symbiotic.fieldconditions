@@ -6,8 +6,20 @@
  * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  */
 class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
-  public function buildQuickForm() {
 
+  public function setDefaultValues() {
+    $defaults = [];
+
+    $source_value = CRM_Utils_Array::value('source_value', $_REQUEST);
+
+    if ($source_value) {
+      $defaults['source_option'] = intval($source_value);
+    }
+
+    return $defaults;
+  }
+
+  public function buildQuickForm() {
     $map_id = CRM_Utils_Array::value('map_id', $_REQUEST);
 
     $dao = CRM_Core_DAO::executeQuery('SELECT map.*,
