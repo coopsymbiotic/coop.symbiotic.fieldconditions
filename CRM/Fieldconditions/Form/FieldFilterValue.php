@@ -41,9 +41,17 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
       'option.limit' => 0,
     ]);
 
+    $source_field_label = civicrm_api3('custom_field', 'getsingle', [
+      'id' => $dao->source_field_id,
+    ]);
+
     $dest_result = civicrm_api3('option_value', 'get', [
       'option_group_id' => $dao->dest_option_group_id,
       'option.limit' => 0,
+    ]);
+
+    $dest_field_label = civicrm_api3('custom_field', 'getsingle', [
+      'id' => $dao->dest_field_id,
     ]);
 
     $source_options = [];
@@ -59,12 +67,12 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     $this->add('hidden', 'map_id', $map_id);
 
     // NB: singular
-    $this->add('select', 'source_option', 'Source', $source_options, TRUE,
+    $this->add('select', 'source_option', $source_field_label['label'], $source_options, TRUE,
       array('id' => 'source_option', 'class' => 'crm-select2')
     );
 
     // NB: plural
-    $this->add('select', 'dest_options', 'Destination', $dest_options, TRUE,
+    $this->add('select', 'dest_options', $dest_field_label['label'],  $dest_options, TRUE,
       array('id' => 'dest_options', 'multiple' => 'multiple', 'class' => 'crm-select2')
     );
 
