@@ -1,25 +1,37 @@
 <h3>Filter values</h3>
 
-<ol id="fieldconditions-filter-values">
-  {foreach from=$rows item=row}
-    <li><span>{$row.source_label}</span> <a href="/civicrm/admin/fieldconditions/filter-values/edit?reset=1&map_id={$map_id}&source_value={$row.source_value}">add</a>
-      <ol style="padding-left: 3em;">
-        {foreach from=$row.values item=val}
-          <li>{$val.id} : {$val.dest_label} <a href="#{$row.id}">delete</a></li>
-        {/foreach}
-      </ol>
-    </li>
+<table class="crm-fieldconditions-filtervalues">
+<tr>
+  <th>ID</th>
+
+  {foreach from=$settings.fields item=field}
+    <th>{$field.field_label}</th>
   {/foreach}
-</ol>
+  <th></th>
+</tr>
+{foreach from=$values item=row}
+  <tr>
+    <td>{$row.id}</td>
+    {foreach from=$settings.fields item=field}
+      <td>{$row[$field.db_column_name].label}</td>
+    {/foreach}
+    <td>
+      <a href="#{$row.id}">{ts}Delete{/ts}</a>
+    </td>
+  </tr>
+{/foreach}
+</table>
 
 {literal}
   <script>
-    CRM.$("#fieldconditions-filter-values").sortable({
+/*
+    CRM.$(".crm-fieldconditions-filtervalues > tbody").sortable({
       // connectWith: "#fieldconditions-filter-values",
       // placeholder: "ui-state-highlight"
       nested: true
     });
     CRM.$("#fieldconditions-filter-values").disableSelection();
+*/
   </script>
 {/literal}
 

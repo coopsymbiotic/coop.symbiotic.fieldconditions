@@ -30,4 +30,16 @@
     <title>Ajax</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/admin/fieldconditions/fields</path>
+    <page_callback>CRM_Fieldconditions_Page_ListFields</page_callback>
+    <title>ListFields</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/fieldconditions/fields/add</path>
+    <page_callback>CRM_Fieldconditions_Form_AddField</page_callback>
+    <title>AddField</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

@@ -9,7 +9,11 @@
     <td>{$row.id}</td>
     <td>{$row.source_group_title} : {$row.source_field_label}</td>
     <td>{$row.dest_group_title} : {$row.dest_field_label}</td>
-    <td><a href="{crmURL p='civicrm/admin/fieldconditions/filter-values' q="reset=1&map_id=`$row.id`"}">{ts}Values{/ts}</a> | <a href="#{$row.id}">{ts}Delete{/ts}</a></td>
+    <td>
+      <a href="{crmURL p='civicrm/admin/fieldconditions/fields' q="reset=1&map_id=`$row.id`"}">{ts}Fields{/ts}</a> |
+      <a href="{crmURL p='civicrm/admin/fieldconditions/filter-values' q="reset=1&map_id=`$row.id`"}">{ts}Values{/ts}</a> |
+      <a href="#{$row.id}">{ts}Delete{/ts}</a>
+    </td>
   </tr>
 {/foreach}
 </table>
