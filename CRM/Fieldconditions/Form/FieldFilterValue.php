@@ -22,12 +22,10 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
   public function buildQuickForm() {
     $map_id = CRM_Utils_Array::value('map_id', $_REQUEST);
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT map.*,
-        fsrc.option_group_id as source_option_group_id,
-        fdst.option_group_id as dest_option_group_id
+    $this->add('hidden', 'map_id', $map_id);
+
+    $dao = CRM_Core_DAO::executeQuery('SELECT *
       FROM civicrm_fieldcondition_map map
-      LEFT JOIN civicrm_custom_field fsrc ON (fsrc.id = map.source_field_id)
-      LEFT JOIN civicrm_custom_field fdst ON (fdst.id = map.dest_field_id)
       WHERE map.id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
@@ -36,45 +34,22 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
       CRM_Core_Error::fatal('map_id not found');
     }
 
-    $source_result = civicrm_api3('option_value', 'get', [
-      'option_group_id' => $dao->source_option_group_id,
-      'option.limit' => 0,
-    ]);
+    $map_settings = json_decode($dao->settings);
 
-    $source_field_label = civicrm_api3('custom_field', 'getsingle', [
-      'id' => $dao->source_field_id,
-    ]);
+    foreach ($map_settings->fields as $field) {
+      $t = explode('.', $field->field_name);
 
-    $dest_result = civicrm_api3('option_value', 'get', [
-      'option_group_id' => $dao->dest_option_group_id,
-      'option.limit' => 0,
-    ]);
+      $result = civicrm_api3('CustomField', 'getoptions', [
+        'field' => $t[1],
+        'option.limit' => 0,
+      ]);
 
-    $dest_field_label = civicrm_api3('custom_field', 'getsingle', [
-      'id' => $dao->dest_field_id,
-    ]);
+      $options = ['' => ts('- select -')] + $result['values'];
 
-    $source_options = [];
-    foreach ($source_result['values'] as $key => $val) {
-      $source_options[$val['value']] = $val['label'];
+      $this->add('select', $field->db_column_name, $field->field_label, $options, TRUE,
+        array('id' => $field->db_column_name, 'class' => 'crm-select2')
+      );
     }
-
-    $dest_options = [];
-    foreach ($dest_result['values'] as $key => $val) {
-      $dest_options[$val['value']] = $val['label'];
-    }
-
-    $this->add('hidden', 'map_id', $map_id);
-
-    // NB: singular
-    $this->add('select', 'source_option', $source_field_label['label'], $source_options, TRUE,
-      array('id' => 'source_option', 'class' => 'crm-select2')
-    );
-
-    // NB: plural
-    $this->add('select', 'dest_options', $dest_field_label['label'],  $dest_options, TRUE,
-      array('id' => 'dest_options', 'multiple' => 'multiple', 'class' => 'crm-select2')
-    );
 
     $this->addButtons(array(
       array(
@@ -92,15 +67,34 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     $values = $this->exportValues();
 
     $map_id = $values['map_id'];
-    $source_option = $values['source_option'];
 
-    foreach ($values['dest_options'] as $dest) {
-      CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition_valuefilter (fieldcondition_map_id, source_value, dest_value) VALUES (%1, %2, %3)', [
-        1 => [$map_id, 'Positive'],
-        2 => [$source_option, 'Positive'],
-        3 => [$dest, 'Positive'],
-      ]);
+    // FIXME: code duplication with buildForm.
+    $dao = CRM_Core_DAO::executeQuery('SELECT *
+      FROM civicrm_fieldcondition_map map
+      WHERE map.id = %1', [
+      1 => [$map_id, 'Positive'],
+    ]);
+
+    if (!$dao->fetch()) {
+      CRM_Core_Error::fatal('map_id not found');
     }
+
+    $map_settings = json_decode($dao->settings);
+
+    $params = [];
+    $sql_fields = [];
+    $sql_placeholders = [];
+
+    foreach ($map_settings->fields as $key => $field) {
+      $sql_fields[] = $field->db_column_name;
+      $params[$key] = [$values[$field->db_column_name], 'Positive'];
+      $sql_placeholders[] = '%' . $key;
+    }
+
+    $sql = 'INSERT INTO civicrm_fieldcondition_valuefilter_' . $map_id . ' (' . implode(',', $sql_fields) . ')
+      VALUES (' . implode(',', $sql_placeholders) . ')';
+
+    CRM_Core_DAO::executeQuery($sql, $params);
 
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     parent::postProcess();
