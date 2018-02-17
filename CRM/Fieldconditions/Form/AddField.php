@@ -6,6 +6,7 @@
  * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  */
 class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
+
   public function buildQuickForm() {
     $map_id = CRM_Utils_Array::value('map_id', $_REQUEST); // FIXME
 

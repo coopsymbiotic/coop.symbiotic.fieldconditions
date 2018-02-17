@@ -7,6 +7,19 @@
  */
 class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
 
+  protected $map_id = NULL;
+  protected $id = NULL;
+
+  public function preProcess() {
+    $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
+
+    if ($this->_action & CRM_Core_Action::DELETE) {
+      if (!CRM_Core_Permission::check('administer CiviCRM')) {
+        CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
+      }
+    }
+  }
+
   public function setDefaultValues() {
     $defaults = [];
 
@@ -20,14 +33,53 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
   }
 
   public function buildQuickForm() {
-    $map_id = CRM_Utils_Array::value('map_id', $_REQUEST);
+    $this->map_id = CRM_Utils_Request::retrieve('map_id', 'Positive', $this);
+    $this->add('hidden', 'map_id', $this->map_id);
 
-    $this->add('hidden', 'map_id', $map_id);
+    $this->addFormRule(array('CRM_Fieldconditions_Form_FieldFilterValue', 'formRule'), $this);
+
+    if ($this->_action & CRM_Core_Action::DELETE || (isset($this->_submitValues['action']) && $this->_submitValues['action'] & CRM_Core_Action::DELETE)) {
+      $this->assign('action', 'delete');
+      $this->id = CRM_Utils_Request::retrieve('id', 'Positive', $this);
+      $this->add('hidden', 'id', $this->id);
+      $this->add('hidden', 'action', $this->_action);
+
+      // Fetch the specific filter value, then fetch its human-readable labels
+      $labels = [];
+      $val = CRM_Fieldconditions_BAO_Fieldconditions::getFieldFilterAllValues($this->map_id, ['id' => $this->id])[0];
+
+      foreach ($val as $k => $v) {
+        if ($k != 'id') {
+          $labels[] = $v['label'];
+        }
+      }
+
+      $this->assign('confirm_delete_values', $labels);
+
+      $button = ts('Delete');
+      if ($this->_action & CRM_Core_Action::RENEW) {
+        $button = ts('Restore');
+      }
+
+      $this->addButtons(array(
+        array(
+          'type' => 'next',
+          'name' => $button,
+          'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+          'isDefault' => TRUE,
+        ),
+        array(
+          'type' => 'cancel',
+          'name' => ts('Cancel'),
+        ),
+      ));
+      return;
+    }
 
     $dao = CRM_Core_DAO::executeQuery('SELECT *
       FROM civicrm_fieldcondition_map map
       WHERE map.id = %1', [
-      1 => [$map_id, 'Positive'],
+      1 => [$this->map_id, 'Positive'],
     ]);
 
     if (!$dao->fetch()) {
@@ -63,10 +115,29 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     parent::buildQuickForm();
   }
 
+  public static function formRule($fields, $files, $self) {
+    // skip form rule if deleting
+    if (CRM_Utils_Array::value('_qf_FieldFilterValue_next', $fields) == ts('Delete')) {
+      return [];
+    }
+
+    return parent::formRule($fields, $files, $self);
+  }
+
   public function postProcess() {
     $values = $this->exportValues();
-
     $map_id = $values['map_id'];
+
+    if (isset($values['action']) && $values['action'] & CRM_Core_Action::DELETE) {
+      CRM_Core_DAO::executeQuery("DELETE FROM civicrm_fieldcondition_valuefilter_" . intval($map_id) . " WHERE id = %1", [
+        1 => [$values['id'], 'Positive'],
+      ]);
+
+      CRM_Core_Session::setStatus(ts('The item has been deleted'), '', 'success');
+
+      $url = CRM_Utils_System::url('civicrm/admin/fieldconditions/filter-values', "map_id=$map_id");
+      CRM_Utils_System::redirect($url);
+    }
 
     // FIXME: code duplication with buildForm.
     $dao = CRM_Core_DAO::executeQuery('SELECT *

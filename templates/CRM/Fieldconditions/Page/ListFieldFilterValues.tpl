@@ -16,7 +16,7 @@
       <td>{$row[$field.db_column_name].label}</td>
     {/foreach}
     <td>
-      <a href="#{$row.id}">{ts}Delete{/ts}</a>
+      <a href="{crmURL p='civicrm/admin/fieldconditions/filter-values/edit' q="action=delete&reset=1&map_id=`$map_id`&id=`$row.id`"}">{ts}Delete{/ts}</a>
     </td>
   </tr>
 {/foreach}

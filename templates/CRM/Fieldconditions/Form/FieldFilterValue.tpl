@@ -1,4 +1,14 @@
-<h3>Add value</h3>
+{if $action eq 8}
+  <h3>{ts}Delete{/ts}</h3>
+
+  <p>{ts}Are you sure you want to delete this combination?{/ts}</p>
+
+  <ul>
+    {foreach from=$confirm_delete_values item=label}
+      <li>{$label}</li>
+    {/foreach}
+  </ul>
+{/if}
 
 {foreach from=$elementNames item=elementName}
   <div class="crm-section">
