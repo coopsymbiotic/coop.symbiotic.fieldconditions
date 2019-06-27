@@ -1,7 +1,7 @@
 CiviCRM field conditions
 ========================
 
-Every had a custom field whose possible values depended on the values of another field?
+Ever had a custom field whose possible values depended on the values of another field?
 
 For example,
 
