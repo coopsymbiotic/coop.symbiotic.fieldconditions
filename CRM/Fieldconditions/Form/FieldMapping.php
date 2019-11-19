@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Fieldconditions_ExtensionUtil as E;
+
 /**
  * Form controller class
  *
@@ -8,7 +10,6 @@
 class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
 
   public function buildQuickForm() {
-
     $result = civicrm_api3('custom_field', 'get', [
       'option.limit' => 0,
       'api.CustomGroup.get' => [],
@@ -19,14 +20,14 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
 
     foreach ($result['values'] as $key => $val) {
       $group_title = $val['api.CustomGroup.get']['values'][0]['title'];
-      $options[$key] = $group_title . ' : ' . $val['label'] . (empty($val['is_active']) ? ' ' . ts('(disabled)', ['domain' => 	'coop.symbiotic.fieldconditions']) : '');
+      $options[$key] = $group_title . ' : ' . $val['label'] . (empty($val['is_active']) ? ' ' . E::ts('(disabled)') : '');
     }
 
-    $this->add('select', 'source_field_id', ts('Source field', ['domain' =>  'coop.symbiotic.fieldconditions']), $options, TRUE,
+    $this->add('select', 'source_field_id', E::ts('Source field'), $options, TRUE,
       array('id' => 'source_field_id', 'class' => 'crm-select2')
     );
 
-    $this->add('select', 'dest_field_id', ts('Destination field', ['domain' =>  'coop.symbiotic.fieldconditions']), $options, TRUE,
+    $this->add('select', 'dest_field_id', E::ts('Destination field'), $options, TRUE,
       array('id' => 'dest_field_id', 'class' => 'crm-select2')
     );
 
@@ -38,7 +39,6 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
       ),
     ));
 
-    // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
     parent::buildQuickForm();
   }
@@ -46,15 +46,32 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
 
-    CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition_map (source_field_id, dest_field_id) VALUES (%1, %2)', [
-      1 => [$values['source_field_id'], 'Positive'],
-      2 => [$values['dest_field_id'], 'Positive'],
+    // Eventually we may support other types
+    $values['map_type'] = 'filter';
+
+    $settings = [];
+    $settings['fields'] = [];
+
+    $settings['fields'][] = [
+      'field_id' => $values['source_field_id'],
+      // 'field_label' => $values['field_label'],
+      // 'db_column_name' => $values['db_column_name'],
+    ];
+
+    $settings['fields'][] = [
+      'field_id' => $values['dest_field_id'],
+      // 'field_label' => $values['field_label'],
+      // 'db_column_name' => $values['db_column_name'],
+    ];
+
+    $settings = json_encode($settings);
+
+    CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition_map (map_type, settings) VALUES (%1, %2)', [
+      1 => [$values['map_type'], 'String'],
+      2 => [$settings, 'String'],
     ]);
 
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
-
-    parent::postProcess();
-
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions', "reset=1"));
   }
 

@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Fieldconditions_ExtensionUtil as E;
+
 /**
  * Form controller class
  *
@@ -7,8 +9,10 @@
  */
 class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
 
+  protected $map_id;
+
   public function buildQuickForm() {
-    $map_id = CRM_Utils_Array::value('map_id', $_REQUEST); // FIXME
+    $map_id = CRM_Utils_Request::retrieveValue('map_id', 'Positive', $this);
 
     $options = [];
     $options[''] = ts('- select -');
@@ -20,8 +24,9 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
       array('id' => 'field', 'class' => 'crm-select2')
     );
 
-    $this->add('text', 'field_label', ts('Label'), NULL, TRUE);
-    $this->add('text', 'db_column_name', ts('DB name'), NULL, TRUE);
+    // FIXME: Why? Was maybe meant to have clean SQL tables, but not worth it?
+    // $this->add('text', 'field_label', ts('Label'), NULL, TRUE);
+    // $this->add('text', 'db_column_name', ts('DB name'), NULL, TRUE);
 
     $this->add('hidden', 'map_id', $map_id);
 
@@ -33,7 +38,6 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
       ),
     ));
 
-    // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
     parent::buildQuickForm();
   }
@@ -71,7 +75,7 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
     $values = $this->exportValues();
 
     $parts = explode('.', $values['field']);
-    $map_id = intval($values['map_id']); // FIXME use proper validation?
+    $map_id = $values['map_id'];
 
     // TODO: create civicrm_fieldcondition_map_[id]
     // TODO: add a field in it, and respect the input's type (ex: text or int..)
@@ -88,8 +92,8 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
 
     $settings['fields'][] = [
       'field_name' => $values['field_name'],
-      'field_label' => $values['field_label'],
-      'db_column_name' => $values['db_column_name'],
+      // 'field_label' => $values['field_label'],
+      // 'db_column_name' => $values['db_column_name'],
     ];
 
     CRM_Core_DAO::executeQuery('UPDATE civicrm_fieldcondition_map SET settings = %1 WHERE id = %2', [
@@ -98,10 +102,7 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
     ]);
 
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
-
-    // FIXME: redirect back to /fields
-
-    parent::postProcess();
+    CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions/fields', "map_id=$map_id&reset=1"));
   }
 
   /**
