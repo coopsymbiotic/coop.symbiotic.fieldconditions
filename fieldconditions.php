@@ -123,30 +123,19 @@ function fieldconditions_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) 
   _fieldconditions_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_preProcess
- *
-function fieldconditions_civicrm_preProcess($formName, &$form) {
-
-} // */
-
 /**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
- *
+ */
 function fieldconditions_civicrm_navigationMenu(&$menu) {
-  _fieldconditions_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
+  _fieldconditions_civix_insert_navigation_menu($menu, 'Administer/Customize Data and Screens', [
+    'label' => E::ts('Field Conditions'),
+    'name' => 'fieldconditoins_settings',
+    'url' => 'civicrm/admin/fieldconditions',
+    'permission' => 'administer CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
-  ));
+  ]);
   _fieldconditions_civix_navigationMenu($menu);
-} // */
+}
