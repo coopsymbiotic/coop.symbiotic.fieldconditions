@@ -14,14 +14,19 @@ This extension may help.
 In some ways, it is similar to how the state_province/country fields work, but for custom fields.
 
 BIG WARNING
-===========
+-----------
 
 This code was not initially meant for public release. It is a subset of a quick hack done for a client project.
 
 It is not meant to be used by end-users at this point, since it is missing a general solution for the javascript bit (see example JS below).
 
+Usage
+-----
+
+Enable the extension, then go to CiviCRM > Administer > Customize Data and Screens.
+
 Example JS
-==========
+----------
 
 This is a rather terrible quick and dirty example. It can be improved in many ways. Provided here only to give a rough idea.
 
@@ -77,10 +82,10 @@ This is a rather terrible quick and dirty example. It can be improved in many wa
 ```
 
 Support
-=======
+-------
 
-Please post bug reports in the issue tracker of this project on github:  
-https://github.com/mlutfy/coop.symbiotic.fieldconditions/issues
+Please post bug reports in the issue tracker of this project:  
+https://lab.civicrm.org/extensions/fieldconditions/issues
 
 This is a community contributed extension written thanks to the financial
 support of organisations using it, as well as the very helpful and collaborative
@@ -97,10 +102,10 @@ Commercial support via Coop SymbioTIC:
 <https://www.symbiotic.coop>
 
 License
-=======
+-------
 
-(C) 2017 Mathieu Lutfy <mathieu@symbiotic.coop>  
-(C) 2017 Coop SymbioTIC <mathieu@symbiotic.coop>
+(C) 2017-2020 Mathieu Lutfy <mathieu@symbiotic.coop>  
+(C) 2017-2020 Coop SymbioTIC <mathieu@symbiotic.coop>
 
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
