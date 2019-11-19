@@ -79,8 +79,8 @@ This is a rather terrible quick and dirty example. It can be improved in many wa
 Support
 =======
 
-Please post bug reports in the issue tracker of this project on github:  
-https://github.com/mlutfy/coop.symbiotic.fieldconditions/issues
+Please post bug reports in the issue tracker of this project:  
+https://lab.civicrm.org/extensions/fieldconditions/issues
 
 This is a community contributed extension written thanks to the financial
 support of organisations using it, as well as the very helpful and collaborative
