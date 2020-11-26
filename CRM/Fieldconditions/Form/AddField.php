@@ -12,6 +12,8 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
   protected $map_id;
 
   public function buildQuickForm() {
+    CRM_Utils_System::setTitle(E::ts('Field Condition: Add Field'));
+
     $map_id = CRM_Utils_Request::retrieveValue('map_id', 'Positive', $this);
 
     $options = [];
@@ -45,25 +47,26 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
   /**
    * Returns a list of all available CiviCRM fields.
    *
-   * TODO: remove the fields already in the mapping.
+   * @todo Remove the fields already in the mapping.
+   * @todo Use api4 instead, but it does not support: case fields, mutlti-record custom fields.
    */
   private function get_fields() {
     $entities = [
-      'activity' => ts('Activity'),
-      'contact' => ts('Contact'),
-      'address' => ts('Address'),
-      'contribution' => ts('Contribution'),
-      'event' => ts('Event'),
-      'case' => ts('Case'),
+      'Activity' => ts('Activity'),
+      'Contact' => ts('Contact'),
+      'Address' => ts('Address'),
+      'Contribution' => ts('Contribution'),
+      'Event' => ts('Event'),
+      'Case' => ts('Case'),
     ];
 
     $options = [];
 
     foreach ($entities as $entity_name => $entity_label) {
-      $result = civicrm_api3($entity_name, 'getfields');
+      $fields = civicrm_api3($entity_name, 'getfields')['values'];
 
-      foreach ($result['values'] as $key => $val) {
-        $name = $entity_name . '.' . $key;
+      foreach ($fields as $key => $val) {
+        $name = $entity_name . '.' . $val['name'];
         $options[$name] = $entity_label . ' > ' . $val['title'];
       }
     }
@@ -73,14 +76,9 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
-
-    $parts = explode('.', $values['field']);
     $map_id = $values['map_id'];
 
-    // TODO: create civicrm_fieldcondition_map_[id]
-    // TODO: add a field in it, and respect the input's type (ex: text or int..)
-
-    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition_map WHERE id = %1', [
+    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
 
@@ -90,16 +88,36 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
       $settings['fields'] = [];
     }
 
+    $colname = $values['field_name'];
+    $colname = mb_strtolower($colname);
+    $colname = preg_replace('/[^_a-z0-9]/', '_', $colname);
+
     $settings['fields'][] = [
       'field_name' => $values['field_name'],
-      // 'field_label' => $values['field_label'],
-      // 'db_column_name' => $values['db_column_name'],
+      'column_name' => $colname,
     ];
 
-    CRM_Core_DAO::executeQuery('UPDATE civicrm_fieldcondition_map SET settings = %1 WHERE id = %2', [
+    CRM_Core_DAO::executeQuery('UPDATE civicrm_fieldcondition SET settings = %1 WHERE id = %2', [
       1 => [json_encode($settings), 'String'],
       2 => [$map_id, 'Positive'],
     ]);
+
+    $tableName = 'civicrm_fieldcondition_' . $map_id;
+
+    // Add the column
+    // @todo Use the correct type of the original field?
+    $parts = explode('.', $values['field_name']);
+    $entity_name = array_shift($parts);
+    $field_name = implode('.', $parts);
+
+    $field = civicrm_api3($entity_name, 'getfield', [
+      'name' => $field_name,
+      'action' => 'get',
+    ])['values'];
+
+    $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($field['data_type'], $field['text_length'] ?? NULL);
+
+    CRM_Core_DAO::executeQuery("ALTER TABLE $tableName ADD `$colname` $sqlType DEFAULT NULL");
 
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions/fields', "map_id=$map_id&reset=1"));

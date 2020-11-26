@@ -1,13 +1,15 @@
 <?php
 
+use CRM_Fieldconditions_ExtensionUtil as E;
+
 class CRM_Fieldconditions_Page_ListFieldMapping extends CRM_Core_Page {
 
   public function run() {
-    CRM_Utils_System::setTitle(ts('Field conditionals'));
+    CRM_Utils_System::setTitle(E::ts('Field conditions'));
 
     $maps = [];
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT m.* FROM civicrm_fieldcondition_map m');
+    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_fieldcondition m');
 
     while ($dao->fetch()) {
       $settings = json_decode($dao->settings);
@@ -19,7 +21,8 @@ class CRM_Fieldconditions_Page_ListFieldMapping extends CRM_Core_Page {
 
       $maps[] = [
         'id' => $dao->id,
-        'map_type' => $dao->map_type,
+        'type' => $dao->type,
+        'name' => $dao->name,
         'settings' => ts('Fields:') . ' ' . implode(', ', $tmp),
       ];
     }

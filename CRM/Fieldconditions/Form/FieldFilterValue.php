@@ -3,10 +3,9 @@
 /**
  * Form controller class
  *
- * @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
+ * @see https://docs.civicrm.org/dev/en/latest/framework/quickform/
  */
 class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
-
   protected $map_id = NULL;
   protected $id = NULL;
 
@@ -35,8 +34,6 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
   public function buildQuickForm() {
     $this->map_id = CRM_Utils_Request::retrieve('map_id', 'Positive', $this);
     $this->add('hidden', 'map_id', $this->map_id);
-
-    $this->addFormRule(array('CRM_Fieldconditions_Form_FieldFilterValue', 'formRule'), $this);
 
     if ($this->_action & CRM_Core_Action::DELETE || (isset($this->_submitValues['action']) && $this->_submitValues['action'] & CRM_Core_Action::DELETE)) {
       $this->assign('action', 'delete');
@@ -77,29 +74,29 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     }
 
     $dao = CRM_Core_DAO::executeQuery('SELECT *
-      FROM civicrm_fieldcondition_map map
-      WHERE map.id = %1', [
+      FROM civicrm_fieldcondition
+      WHERE id = %1', [
       1 => [$this->map_id, 'Positive'],
     ]);
 
     if (!$dao->fetch()) {
-      CRM_Core_Error::fatal('map_id not found');
+      throw new Exception('map_id not found');
     }
 
-    $map_settings = json_decode($dao->settings);
+    $settings = json_decode($dao->settings, TRUE);
 
-    foreach ($map_settings->fields as $field) {
-      $t = explode('.', $field->field_name);
+    foreach ($settings['fields'] as $field) {
+      $meta = CRM_Fieldconditions_BAO_Fieldconditions::getFieldMeta($field['field_name']);
 
-      $result = civicrm_api3('CustomField', 'getoptions', [
-        'field' => $t[1],
+      $result = civicrm_api3($meta['entity_name'], 'getoptions', [
+        'field' => $meta['entity_field'],
         'option.limit' => 0,
       ]);
 
       $options = ['' => ts('- select -')] + $result['values'];
 
-      $this->add('select', $field->db_column_name, $field->field_label, $options, TRUE,
-        array('id' => $field->db_column_name, 'class' => 'crm-select2')
+      $this->add('select', $field['column_name'], $meta['label'], $options, TRUE,
+        array('id' => $field['column_name'], 'class' => 'crm-select2')
       );
     }
 
@@ -113,15 +110,6 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
 
     $this->assign('elementNames', $this->getRenderableElementNames());
     parent::buildQuickForm();
-  }
-
-  public static function formRule($fields, $files, $self) {
-    // skip form rule if deleting
-    if (CRM_Utils_Array::value('_qf_FieldFilterValue_next', $fields) == ts('Delete')) {
-      return [];
-    }
-
-    return parent::formRule($fields, $files, $self);
   }
 
   public function postProcess() {
@@ -141,7 +129,7 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
 
     // FIXME: code duplication with buildForm.
     $dao = CRM_Core_DAO::executeQuery('SELECT *
-      FROM civicrm_fieldcondition_map map
+      FROM civicrm_fieldcondition map
       WHERE map.id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
@@ -157,12 +145,12 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     $sql_placeholders = [];
 
     foreach ($map_settings->fields as $key => $field) {
-      $sql_fields[] = $field->db_column_name;
-      $params[$key] = [$values[$field->db_column_name], 'Positive'];
+      $sql_fields[] = $field->column_name;
+      $params[$key] = [$values[$field->column_name], 'String']; // @todo not always a string
       $sql_placeholders[] = '%' . $key;
     }
 
-    $sql = 'INSERT INTO civicrm_fieldcondition_valuefilter_' . $map_id . ' (' . implode(',', $sql_fields) . ')
+    $sql = 'INSERT INTO civicrm_fieldcondition_' . $map_id . ' (' . implode(',', $sql_fields) . ')
       VALUES (' . implode(',', $sql_placeholders) . ')';
 
     CRM_Core_DAO::executeQuery($sql, $params);

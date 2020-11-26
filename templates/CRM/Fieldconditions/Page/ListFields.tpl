@@ -1,14 +1,14 @@
-<h3>Fieldcondition (valuefilter) fields</h3>
-
 <table>
 <tr>
-  <th>{ts}Field{/ts}</th><th>{ts}Label{/ts}</th><th>{ts}DB{/ts}</th><th></th>
+  <th>{ts}Field{/ts}</th>
+  <th>{ts}Database Column Name{/ts}</th>
+  <th></th>
 </tr>
 {foreach from=$fields item=row}
   <tr>
-    <td>{$row.field_name}</td>
+    <td>{$row.entity}</td>
     <td>{$row.field_label}</td>
-    <td>{$row.db_column_name}</td>
+    <td>{$row.column_name}</td>
     <td>
       <a href="#{$row.id}">{ts}Delete{/ts}</a>
     </td>

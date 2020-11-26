@@ -10,34 +10,23 @@ use CRM_Fieldconditions_ExtensionUtil as E;
 class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
 
   public function buildQuickForm() {
-    $result = civicrm_api3('custom_field', 'get', [
-      'option.limit' => 0,
-      'api.CustomGroup.get' => [],
-    ]);
+    CRM_Utils_System::setTitle(E::ts('New Field Condition'));
 
-    $options = [];
-    $options[''] = ts('- select -');
+    $types = [
+      '' => E::ts('- select -'),
+      'filter' => E::ts('Filter - limit options of one field based on the other field'),
+    ];
 
-    foreach ($result['values'] as $key => $val) {
-      $group_title = $val['api.CustomGroup.get']['values'][0]['title'];
-      $options[$key] = $group_title . ' : ' . $val['label'] . (empty($val['is_active']) ? ' ' . E::ts('(disabled)') : '');
-    }
+    $this->add('select', 'type', E::ts('Type'), $types, TRUE);
+    $this->add('text', 'name', E::ts('Name'), NULL, TRUE);
 
-    $this->add('select', 'source_field_id', E::ts('Source field'), $options, TRUE,
-      array('id' => 'source_field_id', 'class' => 'crm-select2')
-    );
-
-    $this->add('select', 'dest_field_id', E::ts('Destination field'), $options, TRUE,
-      array('id' => 'dest_field_id', 'class' => 'crm-select2')
-    );
-
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
-        'name' => ts('Submit'),
+        'name' => E::ts('Submit'),
         'isDefault' => TRUE,
-      ),
-    ));
+      ],
+    ]);
 
     $this->assign('elementNames', $this->getRenderableElementNames());
     parent::buildQuickForm();
@@ -46,9 +35,7 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
 
-    // Eventually we may support other types
-    $values['map_type'] = 'filter';
-
+/*
     $settings = [];
     $settings['fields'] = [];
 
@@ -63,13 +50,28 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
       // 'field_label' => $values['field_label'],
       // 'db_column_name' => $values['db_column_name'],
     ];
+*/
 
-    $settings = json_encode($settings);
+    # $settings = json_encode($settings);
 
-    CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition_map (map_type, settings) VALUES (%1, %2)', [
-      1 => [$values['map_type'], 'String'],
-      2 => [$settings, 'String'],
+    // @todo generate an entity?
+    CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition (type, name) VALUES (%1, %2)', [
+      1 => [$values['type'], 'String'],
+      2 => [$values['name'], 'String'],
     ]);
+
+    $id = CRM_Core_DAO::singleValueQuery('SELECT max(id) as id FROM civicrm_fieldcondition');
+
+    // Create a database table for the new mapping
+    $tableName = 'civicrm_fieldcondition_' . $id;
+
+    $sql = "CREATE TABLE $tableName (
+        id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique ID',
+        PRIMARY KEY (id)
+      )
+      ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
+
+    CRM_Core_DAO::executeQuery($sql);
 
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions', "reset=1"));

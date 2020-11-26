@@ -3,6 +3,26 @@
 class CRM_Fieldconditions_BAO_Fieldconditions {
 
   /**
+   * Given a name such as Contact.custom_123, it returns more useful meta from getfields.
+   */
+  static public function getFieldMeta($fieldName) {
+    $parts = explode('.', $fieldName);
+    $entityName = array_shift($parts);
+    $fieldName = implode('.', $parts);
+
+    $meta = civicrm_api3($entityName, 'getfield', [
+      'name' => $fieldName,
+      'action' => 'get',
+    ])['values'];
+
+    return [
+      'label' => $meta['label'],
+      'entity_field' => $fieldName,
+      'entity_name' => $entityName,
+    ];
+  }
+
+  /**
    * FIXME
    */
   static function getFieldFilterValues($map_id, $source_value, $dest_value) {
@@ -168,7 +188,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     $where = 'WHERE 1=1';
 
     // Extract field definitions
-    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition_map WHERE id = %1', [
+    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
 
@@ -178,8 +198,8 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       CRM_Core_Error::fatal('No fields in this mapping?');
     }
 
-    // TODO? $table = CRM_Utils_Type::escape('civicrm_fieldcondition_valuefilter_' . $map_id, 'MysqlColumnNameOrAlias');
-    $table = 'civicrm_fieldcondition_valuefilter_' . $map_id;
+    $map_id = (int) $map_id;
+    $table = 'civicrm_fieldcondition_' . $map_id;
 
     // This is used by AJAX queries
     // FIXME: we should probably validate if the 'key' is valid.
@@ -208,7 +228,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       $row['id'] = $dao->id;
 
       foreach ($settings['fields'] as $field) {
-        $db_column_name = $field['db_column_name'];
+        $db_column_name = $field['column_name'];
         $row[$db_column_name] = [
           'label' => self::translate($field['field_name'], $dao->{$db_column_name}),
           'value' => $dao->{$db_column_name},
@@ -256,7 +276,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
    * FIXME
    */
   static function getMapSettings($map_id) {
-    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition_map WHERE id = %1', [
+    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
 

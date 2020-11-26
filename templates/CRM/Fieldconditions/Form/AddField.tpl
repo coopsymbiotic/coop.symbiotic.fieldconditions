@@ -1,5 +1,3 @@
-<h3>{ts}Add a field{/ts}</h3>
-
 {foreach from=$elementNames item=elementName}
   <div class="crm-section">
     <div class="label">{$form.$elementName.label}</div>

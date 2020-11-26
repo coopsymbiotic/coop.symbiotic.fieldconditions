@@ -1,16 +1,16 @@
 <?php
 
+use CRM_Fieldconditions_ExtensionUtil as E;
+
 class CRM_Fieldconditions_Page_ListFields extends CRM_Core_Page {
 
   public function run() {
-    // FIXME: use CRM_Utils_Request?
-    $map_id = CRM_Utils_Array::value('map_id', $_REQUEST);
-
-    CRM_Utils_System::setTitle(ts('Fieldcondition (valuefilter) fields'));
+    CRM_Utils_System::setTitle(ts('Field Condition (filter) Fields'));
 
     $fields = [];
+    $map_id = CRM_Utils_Request::retrieveValue('map_id', 'Positive');
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT id, map_type, settings FROM civicrm_fieldcondition_map WHERE id = %1', [
+    $dao = CRM_Core_DAO::executeQuery('SELECT id, type, settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
 
@@ -20,6 +20,13 @@ class CRM_Fieldconditions_Page_ListFields extends CRM_Core_Page {
 
     if ($dao->settings) {
       $settings = json_decode($dao->settings, TRUE);
+
+      foreach ($settings['fields'] as &$field) {
+        $meta = CRM_Fieldconditions_BAO_Fieldconditions::getFieldMeta($field['field_name']);
+
+        $field['entity'] = $meta['entity_name'];
+        $field['field_label'] = $meta['label'];
+      }
 
       if (!empty($settings['fields'])) {
         $this->assign('fields', $settings['fields']);

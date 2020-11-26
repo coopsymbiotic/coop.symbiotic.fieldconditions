@@ -1,19 +1,22 @@
-<h3>Filter values</h3>
+{crmScope key='coop.symbiotic.fieldconditions'}
 
+{* @todo Use a DataTable instead? *}
 <table class="crm-fieldconditions-filtervalues">
+<thead>
 <tr>
-  <th>ID</th>
+  <th>{ts}ID{/ts}</th>
 
   {foreach from=$settings.fields item=field}
-    <th>{$field.field_label}</th>
+    <th>{$field.label}</th>
   {/foreach}
   <th></th>
 </tr>
+</thead>
 {foreach from=$values item=row}
   <tr>
     <td>{$row.id}</td>
     {foreach from=$settings.fields item=field}
-      <td>{$row[$field.db_column_name].label}</td>
+      <td>{$row[$field.column_name].label}</td>
     {/foreach}
     <td>
       <a href="{crmURL p='civicrm/admin/fieldconditions/filter-values/edit' q="action=delete&reset=1&map_id=`$map_id`&id=`$row.id`"}">{ts}Delete{/ts}</a>
@@ -22,17 +25,5 @@
 {/foreach}
 </table>
 
-{literal}
-  <script>
-/*
-    CRM.$(".crm-fieldconditions-filtervalues > tbody").sortable({
-      // connectWith: "#fieldconditions-filter-values",
-      // placeholder: "ui-state-highlight"
-      nested: true
-    });
-    CRM.$("#fieldconditions-filter-values").disableSelection();
-*/
-  </script>
-{/literal}
-
 <div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/filter-values/edit?reset=1&map_id={$map_id}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new</span></a></div>
+{/crmScope}

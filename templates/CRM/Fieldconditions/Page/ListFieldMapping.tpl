@@ -1,14 +1,16 @@
-<h3>Field conditionals</h3>
-
+{crmScope key='coop.symbiotic.fieldconditions'}
 <table>
 <tr>
-  <th>ID</th><th>Type</th><th>Settings</th><th></th>
+  <th>{ts}ID{/ts}</th>
+  <th>{ts}Type{/ts}</th>
+  <th>{ts}Name{/ts}</th>
+  <th></th>
 </tr>
 {foreach from=$field_maps item=row}
   <tr>
     <td>{$row.id}</td>
-    <td>{$row.map_type}</td>
-    <td>{$row.settings}</td>
+    <td>{$row.type}</td>
+    <td>{$row.name}</td>
     <td>
       <a href="{crmURL p='civicrm/admin/fieldconditions/fields' q="reset=1&map_id=`$row.id`"}">{ts}Fields{/ts}</a> |
       <a href="{crmURL p='civicrm/admin/fieldconditions/filter-values' q="reset=1&map_id=`$row.id`"}">{ts}Values{/ts}</a> |
@@ -18,4 +20,5 @@
 {/foreach}
 </table>
 
-<div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/add-map?reset=1" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field dependency filter</span></a></div>
+<div style="padding: 1em;"><a href="{crmURL p='civicrm/admin/fieldconditions/add-map' q='reset=1'}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span>{ts}New{/ts}</span></a></div>
+{/crmScope}
