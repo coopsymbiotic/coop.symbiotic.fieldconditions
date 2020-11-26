@@ -139,3 +139,39 @@ function fieldconditions_civicrm_navigationMenu(&$menu) {
   ]);
   _fieldconditions_civix_navigationMenu($menu);
 }
+
+/**
+ *
+ */
+function fieldconditions_civicrm_buildForm($formName, &$form) {
+  $allSettings = CRM_Fieldconditions_BAO_Fieldconditions::getAllSettings();
+  $maps = [];
+
+  // Find out if this form has fieldconditions
+  foreach ($allSettings as $map_id => $settings) {
+    $matches = FALSE;
+
+    foreach ($settings['fields'] as &$field) {
+      foreach ($form->_elementIndex as $key => $val) {
+        // @todo This currently only matches against custom fields
+        // custom_xx_
+        if (preg_match('/' . $field['entity_field'] . '_/', $key)) {
+          $matches = TRUE;
+          $field['qf_field'] = $key;
+        }
+      }
+    }
+
+    if ($matches) {
+      $maps[$map_id] = $settings;
+    }
+  }
+
+  if (!empty($maps)) {
+    Civi::resources()->addVars('fieldconditions', [
+      'maps' => $maps,
+    ]);
+
+    Civi::resources()->addScriptFile('coop.symbiotic.fieldconditions', 'fieldconditions.js');
+  }
+}
