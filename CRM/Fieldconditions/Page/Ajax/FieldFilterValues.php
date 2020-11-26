@@ -5,7 +5,7 @@ class CRM_Fieldconditions_Page_Ajax_FieldFilterValues extends CRM_Core_Page {
   public function run() {
     $map_id = CRM_Utils_Array::value('map_id', $_REQUEST);
 
-    $settings = CRM_Fieldconditions_BAO_Fieldconditions::getMapSettings($map_id);
+    $settings = CRM_Fieldconditions_BAO_Fieldconditions::getSettings($map_id);
     $params = [];
 
     // Normally a request should have all possible values

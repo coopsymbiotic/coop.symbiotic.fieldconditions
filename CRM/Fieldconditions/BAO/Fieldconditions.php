@@ -273,14 +273,21 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
   }
 
   /**
-   * FIXME
+   * Returns the various settings of a given fieldcondition (they used to be called 'maps').
    */
-  static function getMapSettings($map_id) {
+  static function getSettings($map_id) {
     $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],
     ]);
 
     $settings = json_decode($settings, TRUE);
+
+    foreach ($settings['fields'] as &$field) {
+      $meta = CRM_Fieldconditions_BAO_Fieldconditions::getFieldMeta($field['field_name']);
+      $field['entity'] = $meta['entity_name'];
+      $field['field_label'] = $meta['label'];
+    }
+
     return $settings;
   }
 

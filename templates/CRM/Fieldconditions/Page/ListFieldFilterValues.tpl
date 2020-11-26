@@ -7,7 +7,7 @@
   <th>{ts}ID{/ts}</th>
 
   {foreach from=$settings.fields item=field}
-    <th>{$field.label}</th>
+    <th>{$field.field_label}</th>
   {/foreach}
   <th></th>
 </tr>
