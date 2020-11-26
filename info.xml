@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <extension key="coop.symbiotic.fieldconditions" type="module">
   <file>fieldconditions</file>
-  <name>FIXME</name>
-  <description>FIXME</description>
+  <name>fieldconditions</name>
+  <description>Define conditional rules of allowed field values based on the value selected in another field</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Mathieu Lutfy</author>
