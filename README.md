@@ -1,5 +1,7 @@
 # CiviCRM field conditions
 
+![Screenshot](/images/screenshot.png)
+
 Ever had a custom field whose possible values depended on the values of another field?
 
 For example,
