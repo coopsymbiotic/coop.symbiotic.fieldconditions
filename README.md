@@ -16,6 +16,10 @@ In some ways, it is similar to how the state_province/country fields work, but f
 
 The extension is still fairly experimental.
 
+Alternative extensions:
+
+* [fieldlookup](https://github.com/MegaphoneJon/fieldlookup)
+
 ## Usage
 
 Enable the extension, then go to CiviCRM > Administer > Customize Data and Screens > Field Conditions.
