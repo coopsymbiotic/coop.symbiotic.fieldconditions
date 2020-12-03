@@ -16,9 +16,11 @@ In some ways, it is similar to how the state_province/country fields work, but f
 
 The extension is still fairly experimental.
 
-Alternative extensions:
+Similar extensions:
 
 * [fieldlookup](https://github.com/MegaphoneJon/fieldlookup)
+* [cityselector](https://lab.civicrm.org/extensions/cityselector)
+* [regionlookup](https://lab.civicrm.org/extensions/regionlookup)
 
 ## Usage
 
