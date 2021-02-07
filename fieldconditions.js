@@ -7,10 +7,6 @@
       return;
     }
 
-    var p_fields = [ 833, 847, 854 ];
-    var e_fields = [ 835, 850, 856 ];
-    var s_fields = [ 837, 852, 858 ];
-
     $.each(CRM.vars.fieldconditions.maps, function(map_id, settings) {
       $.each(settings.fields, function(index, field) {
         $('#' + field.qf_field).on('change', function(event) {
