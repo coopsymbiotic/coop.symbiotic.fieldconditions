@@ -115,7 +115,16 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
       'action' => 'get',
     ])['values'];
 
-    $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($field['data_type'], $field['text_length'] ?? NULL);
+    $sqlType = 'text';
+
+    // Custom Fields have data_type, but core fields (ex: Address.county usually do not)
+    if (!empty($field['data_type'])) {
+      $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($field['data_type'], $field['text_length'] ?? NULL);
+    }
+    elseif (!empty($field['type'])) {
+      $data_type = CRM_Utils_Type::typeToString($field['type']);
+      $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($data_type);
+    }
 
     CRM_Core_DAO::executeQuery("ALTER TABLE $tableName ADD `$colname` $sqlType DEFAULT NULL");
 
