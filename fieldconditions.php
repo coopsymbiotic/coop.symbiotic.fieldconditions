@@ -6,7 +6,7 @@ use CRM_Fieldconditions_ExtensionUtil as E;
 /**
  * Implements hook_civicrm_config().
  *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_config/ 
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_config/
  */
 function fieldconditions_civicrm_config(&$config) {
   _fieldconditions_civix_civicrm_config($config);
@@ -153,9 +153,18 @@ function fieldconditions_civicrm_buildForm($formName, &$form) {
 
     foreach ($settings['fields'] as &$field) {
       foreach ($form->_elementIndex as $key => $val) {
-        // @todo This currently only matches against custom fields
-        // custom_xx_
-        if (preg_match('/' . $field['entity_field'] . '_/', $key)) {
+        if ($key == $field['entity_field']) {
+          $matches = TRUE;
+          $field['qf_field'] = $key;
+        }
+        elseif (preg_match('/^address\[(\d+)\]\[' . $field['entity_field'] . '(_[^\]]*)?\]$/', $key, $found)) {
+          $matches = TRUE;
+          $field['qf_field'] = 'address_' . $found[1] . '_' . $field['entity_field'] . (!empty($found[2]) ? $found[2] : '');
+        }
+        elseif (preg_match('/' . $field['entity_field'] . '_/', $key)) {
+          // @todo This currently only matches against custom fields
+          // and should probably use strpos or something more efficient.
+          // custom_xx_
           $matches = TRUE;
           $field['qf_field'] = $key;
         }
