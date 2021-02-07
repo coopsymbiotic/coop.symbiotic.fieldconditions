@@ -16,7 +16,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     ])['values'];
 
     return [
-      'label' => $meta['label'],
+      'label' => $meta['label'] ?? $meta['title'],
       'entity_field' => $fieldName,
       'entity_name' => $entityName,
     ];
