@@ -3,7 +3,14 @@
 class CRM_Fieldconditions_Page_Ajax_FieldFilterValues extends CRM_Core_Page {
 
   public function run() {
-    $map_id = CRM_Utils_Request::retrieveValue('map_id', 'Positive');
+    $map_id = CRM_Utils_Request::retrieveValue('map_id', 'String');
+
+    // Non-numeric map_id when there are fieldconditiosn on addresses
+    if (!is_numeric($map_id)) {
+      $parts = explode('-', $map_id);
+      $map_id = $parts[0];
+    }
+
     $settings = CRM_Fieldconditions_BAO_Fieldconditions::getSettings($map_id);
     $params = [];
 

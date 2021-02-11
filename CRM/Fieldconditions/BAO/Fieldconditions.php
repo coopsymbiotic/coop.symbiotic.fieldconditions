@@ -29,6 +29,12 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     $rows = [];
     $where = 'WHERE 1=1';
 
+    // Non-numeric map_id when there are fieldconditiosn on addresses
+    if (!is_numeric($map_id)) {
+      $parts = explode('-', $map_id);
+      $map_id = $parts[0];
+    }
+
     // Extract field definitions
     $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
       1 => [$map_id, 'Positive'],

@@ -150,29 +150,39 @@ function fieldconditions_civicrm_buildForm($formName, &$form) {
   // Find out if this form has fieldconditions
   foreach ($allSettings as $map_id => $settings) {
     $matches = FALSE;
+    $hash_id = $map_id;
 
-    foreach ($settings['fields'] as &$field) {
-      foreach ($form->_elementIndex as $key => $val) {
+    foreach ($form->_elementIndex as $key => $val) {
+      foreach ($settings['fields'] as $k2 => $field) {
+        // There is a bit of twisted logic in here to handle multiple address records.
+        // Addresses use as "hash_id" such as "1-2", where 1 is the map_id, 2 is the address ID.
+        // We switch back and forth because a same form can have address and non-address fields, semi-randomly.
+        // Field conditions between address and non-address fields is somewhat unpredictable/untested.
         if ($key == $field['entity_field']) {
-          $matches = TRUE;
-          $field['qf_field'] = $key;
+          $hash_id = $map_id;
+          if (empty($maps[$hash_id])) {
+            $maps[$hash_id] = $settings;
+          }
+          $maps[$hash_id]['fields'][$k2]['qf_field'] = $key;
         }
         elseif (preg_match('/^address\[(\d+)\]\[' . $field['entity_field'] . '(_[^\]]*)?\]$/', $key, $found)) {
-          $matches = TRUE;
-          $field['qf_field'] = 'address_' . $found[1] . '_' . $field['entity_field'] . (!empty($found[2]) ? $found[2] : '');
+          $hash_id = $map_id . '-' . $found[1];
+          if (empty($maps[$hash_id])) {
+            $maps[$hash_id] = $settings;
+          }
+          $maps[$hash_id]['fields'][$k2]['qf_field'] = 'address_' . $found[1] . '_' . $field['entity_field'] . (!empty($found[2]) ? $found[2] : '');
         }
         elseif (preg_match('/' . $field['entity_field'] . '_/', $key)) {
           // @todo This currently only matches against custom fields
           // and should probably use strpos or something more efficient.
           // custom_xx_
-          $matches = TRUE;
-          $field['qf_field'] = $key;
+          $hash_id = $map_id;
+          if (empty($maps[$hash_id])) {
+            $maps[$hash_id] = $settings;
+          }
+          $maps[$hash_id]['fields'][$k2]['qf_field'] = $key;
         }
       }
-    }
-
-    if ($matches) {
-      $maps[$map_id] = $settings;
     }
   }
 
