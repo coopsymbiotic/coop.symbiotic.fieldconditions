@@ -187,10 +187,37 @@ function fieldconditions_civicrm_buildForm($formName, &$form) {
   }
 
   if (!empty($maps)) {
-    Civi::resources()->addVars('fieldconditions', [
-      'maps' => $maps,
-    ]);
+    if (empty(CRM_Utils_Request::retrieveValue('snippet', 'String'))) {
+      Civi::resources()->addVars('fieldconditions', [
+        'maps' => $maps,
+      ]);
 
-    Civi::resources()->addScriptFile('coop.symbiotic.fieldconditions', 'fieldconditions.js');
+      Civi::resources()->addScriptFile('coop.symbiotic.fieldconditions', 'fieldconditions.js');
+    }
+    else {
+      // Ex: loading a new address
+      // We have to do a workaround using alterContent because Address.tpl does not
+      // invoke any relevant crmRegion where we could inject JS.
+      global $fieldconditions_maps;
+      $fieldconditions_maps = $maps;
+    }
+  }
+}
+
+function fieldconditions_civicrm_alterContent(&$content, $context, $tplName, &$object) {
+  if ($tplName == 'CRM/Contact/Form/Contact.tpl' && !empty(CRM_Utils_Request::retrieveValue('snippet', 'String'))) {
+    global $fieldconditions_maps;
+
+    if (!empty($fieldconditions_maps)) {
+      foreach ($fieldconditions_maps as $hash_id => $vars) {
+        $content .= '
+          <script>
+            CRM.$(function($) {
+              CRM.vars.fieldconditions.maps["' . $hash_id . '"] = $.parseJSON(\'' . json_encode($vars) . '\');
+            });
+          </script>
+        ';
+      }
+    }
   }
 }
