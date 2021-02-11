@@ -1,6 +1,6 @@
 (function($, _, ts){
 
-  CRM.fieldconditionsChangeInProgress = false;
+  CRM.fieldconditionsChangeInProgress = 0;
 
   $(document).on('crmLoad', function(e) {
     if (typeof CRM.vars.fieldconditions == 'undefined' || typeof CRM.vars.fieldconditions.maps == 'undefined') {
@@ -23,12 +23,12 @@
   CRM.fieldconditionsFieldLookup = function(selected_field, map_id, settings) {
     // Only update the list if no selection was already done.
     // Also protect against a change event triggered by another list being programmatically updated.
-    if (CRM.fieldconditionsChangeInProgress) {
+    if (CRM.fieldconditionsChangeInProgress > 0) {
       return;
     }
 
     $('#' + selected_field.qf_field).parent().append('<div class="crm-loading-element" style="float: right; height: 16px;"></div>');
-    CRM.fieldconditionsChangeInProgress = true;
+    CRM.fieldconditionsChangeInProgress++;
 
     var field_to_qf = {};
     var params = {};
@@ -44,8 +44,6 @@
       data: params,
       dataType: 'json',
       success: function(data) {
-        // CRM.status(data.length + ' items');
-
         var allowed_values = {};
 
         $.each(data, function(index, element) {
@@ -68,26 +66,30 @@
         });
 
         $.each(allowed_values, function(qf_name, values) {
-          CRM.fieldconditionsUpdateWidget(qf_name, values);
+          CRM.fieldconditionsUpdateWidget(qf_name, values, selected_field);
         });
 
         $('#' + selected_field.qf_field).parent().find('.crm-loading-element').remove();
-        CRM.fieldconditionsChangeInProgress = false;
+        CRM.fieldconditionsChangeInProgress--;
       },
       error: function(data) {
         CRM.alert(ts('Error while checking possible values'));
         $('#' + selected_field.qf_field).parent().find('.crm-loading-element').remove();
-        CRM.fieldconditionsChangeInProgress = false;
+        CRM.fieldconditionsChangeInProgress--;
       },
     });
   };
 
-  CRM.fieldconditionsUpdateWidget = function(qf_name, values) {
+  CRM.fieldconditionsUpdateWidget = function(qf_name, values, source_field) {
     var $select = $('#' + qf_name);
 
     // Do not update a widget that already has a value
     // It should already be filtered to allow only valid options
-    if ($select.val()) {
+    //
+    // However, we still update the field that was selected, because
+    // if {A,B,C} was previously possible, but now that "A" was selected,
+    // with the values of other fields, maybe {B,C} are not valid options anymore.
+    if ($select.val() && qf_name != source_field.qf_field) {
       return;
     }
 
@@ -95,9 +97,12 @@
     $select.append('<option value=""></option>');
 
     $.each(values, function(index, element) {
-      $select.append($('<option></option>')
-        .attr('value', index)
-        .html(element));
+      // Rather odd, probably something we can fix in the PHP that generates the values
+      if (index != "null") {
+        $select.append($('<option></option>')
+          .attr('value', index)
+          .html(element));
+      }
     });
 
     if (Object.keys(values).length == 1) {
