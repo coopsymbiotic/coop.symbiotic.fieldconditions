@@ -76,58 +76,7 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
-    $map_id = $values['map_id'];
-
-    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
-      1 => [$map_id, 'Positive'],
-    ]);
-
-    $settings = json_decode($settings, TRUE);
-
-    if (!isset($settings['fields'])) {
-      $settings['fields'] = [];
-    }
-
-    $colname = $values['field_name'];
-    $colname = mb_strtolower($colname);
-    $colname = preg_replace('/[^_a-z0-9]/', '_', $colname);
-
-    $settings['fields'][] = [
-      'field_name' => $values['field_name'],
-      'column_name' => $colname,
-    ];
-
-    CRM_Core_DAO::executeQuery('UPDATE civicrm_fieldcondition SET settings = %1 WHERE id = %2', [
-      1 => [json_encode($settings), 'String'],
-      2 => [$map_id, 'Positive'],
-    ]);
-
-    $tableName = 'civicrm_fieldcondition_' . $map_id;
-
-    // Add the column
-    // @todo Use the correct type of the original field?
-    $parts = explode('.', $values['field_name']);
-    $entity_name = array_shift($parts);
-    $field_name = implode('.', $parts);
-
-    $field = civicrm_api3($entity_name, 'getfield', [
-      'name' => $field_name,
-      'action' => 'get',
-    ])['values'];
-
-    $sqlType = 'text';
-
-    // Custom Fields have data_type, but core fields (ex: Address.county usually do not)
-    if (!empty($field['data_type'])) {
-      $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($field['data_type'], $field['text_length'] ?? NULL);
-    }
-    elseif (!empty($field['type'])) {
-      $data_type = CRM_Utils_Type::typeToString($field['type']);
-      $sqlType = CRM_Core_BAO_CustomValueTable::fieldToSQLType($data_type);
-    }
-
-    CRM_Core_DAO::executeQuery("ALTER TABLE $tableName ADD `$colname` $sqlType DEFAULT NULL");
-
+    CRM_Fieldconditions_BAO_Fieldconditions::addFieldToMapping($values['map_id'], $values['field_name']);
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions/fields', "map_id=$map_id&reset=1"));
   }

@@ -34,45 +34,7 @@ class CRM_Fieldconditions_Form_FieldMapping extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
-
-/*
-    $settings = [];
-    $settings['fields'] = [];
-
-    $settings['fields'][] = [
-      'field_id' => $values['source_field_id'],
-      // 'field_label' => $values['field_label'],
-      // 'db_column_name' => $values['db_column_name'],
-    ];
-
-    $settings['fields'][] = [
-      'field_id' => $values['dest_field_id'],
-      // 'field_label' => $values['field_label'],
-      // 'db_column_name' => $values['db_column_name'],
-    ];
-*/
-
-    # $settings = json_encode($settings);
-
-    // @todo generate an entity?
-    CRM_Core_DAO::executeQuery('INSERT INTO civicrm_fieldcondition (type, name) VALUES (%1, %2)', [
-      1 => [$values['type'], 'String'],
-      2 => [$values['name'], 'String'],
-    ]);
-
-    $id = CRM_Core_DAO::singleValueQuery('SELECT max(id) as id FROM civicrm_fieldcondition');
-
-    // Create a database table for the new mapping
-    $tableName = 'civicrm_fieldcondition_' . $id;
-
-    $sql = "CREATE TABLE $tableName (
-        id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique ID',
-        PRIMARY KEY (id)
-      )
-      ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
-
-    CRM_Core_DAO::executeQuery($sql);
-
+    CRM_Fieldconditions_BAO_Fieldconditions::createFieldMapping($values['type'], $values['name']);
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions', "reset=1"));
   }
