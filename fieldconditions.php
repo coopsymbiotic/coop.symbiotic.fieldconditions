@@ -234,8 +234,22 @@ function fieldconditions_civicrm_buildForm($formName, &$form) {
   }
 }
 
+function fieldconditions_civicrm_pageRun(&$page) {
+  $pageName = get_class($page);
+
+  // To support Contact inline edit
+  if ($pageName == 'CRM_Contact_Page_View_Summary') {
+    Civi::resources()->addScriptFile('coop.symbiotic.fieldconditions', 'fieldconditions.js');
+  }
+}
+
 function fieldconditions_civicrm_alterContent(&$content, $context, $tplName, &$object) {
-  if ($tplName == 'CRM/Contact/Form/Contact.tpl' && !empty(CRM_Utils_Request::retrieveValue('snippet', 'String'))) {
+  $tpls = [
+    'CRM/Contact/Form/Inline/Address.tpl',
+    'CRM/Contact/Form/Contact.tpl',
+  ];
+
+  if (in_array($tplName, $tpls) && !empty(CRM_Utils_Request::retrieveValue('snippet', 'String'))) {
     global $fieldconditions_maps;
 
     if (!empty($fieldconditions_maps)) {
@@ -243,11 +257,26 @@ function fieldconditions_civicrm_alterContent(&$content, $context, $tplName, &$o
         $content .= '
           <script>
             CRM.$(function($) {
+              if (typeof CRM.vars.fieldconditions == "undefined") {
+                CRM.vars.fieldconditions = {};
+                CRM.vars.fieldconditions.maps = {};
+              }
+
               CRM.vars.fieldconditions.maps["' . $hash_id . '"] = $.parseJSON(\'' . json_encode($vars) . '\');
+              CRM.fieldconditionsEnable();
             });
           </script>
         ';
       }
+
+      // Only call this function once (if there are multiple fieldconditions)
+      $content .= '
+        <script>
+          CRM.$(function($) {
+            CRM.fieldconditionsEnable();
+          });
+        </script>
+      ';
     }
   }
 }

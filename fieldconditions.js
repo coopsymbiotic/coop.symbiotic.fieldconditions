@@ -2,11 +2,12 @@
 
   CRM.fieldconditionsChangeInProgress = 0;
 
-  $(document).on('crmLoad', function(e) {
-    if (typeof CRM.vars.fieldconditions == 'undefined' || typeof CRM.vars.fieldconditions.maps == 'undefined') {
-      return;
-    }
+  // see crmLoad at the bottom of the file
 
+  /**
+   *
+   */
+  CRM.fieldconditionsEnable = function() {
     $.each(CRM.vars.fieldconditions.maps, function(map_id, settings) {
       $.each(settings.fields, function(index, field) {
         $('#' + field.qf_field).on('change', function(event) {
@@ -14,8 +15,7 @@
         });
       });
     });
-
-  });
+  };
 
   /**
    * When the user one of the fields, lookup possible options.
@@ -115,5 +115,17 @@
 
     $select.change();
   };
+
+  /**
+   * Called by "Add new address" on New Contact, for example
+   */
+  $(document).on('crmLoad', function(e) {
+    if (typeof CRM.vars.fieldconditions == 'undefined' || typeof CRM.vars.fieldconditions.maps == 'undefined') {
+      return;
+    }
+
+    CRM.fieldconditionsEnable();
+  });
+
 
 })(CRM.$, CRM._, CRM.ts('coop.symbiotic.fieldconditions'));
