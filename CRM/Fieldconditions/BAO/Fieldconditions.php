@@ -89,6 +89,38 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
   }
 
   /**
+   * Adds a tuple (combo of values) in a fieldcondition 'filter'.
+   */
+  static public function addFieldFilterValue($map_id, $values) {
+    $dao = CRM_Core_DAO::executeQuery('SELECT *
+      FROM civicrm_fieldcondition map
+      WHERE map.id = %1', [
+      1 => [$map_id, 'Positive'],
+    ]);
+
+    if (!$dao->fetch()) {
+      CRM_Core_Error::fatal('map_id not found');
+    }
+
+    $map_settings = json_decode($dao->settings);
+
+    $params = [];
+    $sql_fields = [];
+    $sql_placeholders = [];
+
+    foreach ($map_settings->fields as $key => $field) {
+      $sql_fields[] = $field->column_name;
+      $params[$key] = [$values[$field->column_name], 'String']; // @todo not always a string
+      $sql_placeholders[] = '%' . $key;
+    }
+
+    $sql = 'INSERT INTO civicrm_fieldcondition_' . $map_id . ' (' . implode(',', $sql_fields) . ')
+      VALUES (' . implode(',', $sql_placeholders) . ')';
+
+    CRM_Core_DAO::executeQuery($sql, $params);
+  }
+
+  /**
    * Given a name such as Contact.custom_123, it returns more useful meta from getfields.
    */
   static public function getFieldMeta($fieldName) {

@@ -127,34 +127,7 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
       CRM_Utils_System::redirect($url);
     }
 
-    // FIXME: code duplication with buildForm.
-    $dao = CRM_Core_DAO::executeQuery('SELECT *
-      FROM civicrm_fieldcondition map
-      WHERE map.id = %1', [
-      1 => [$map_id, 'Positive'],
-    ]);
-
-    if (!$dao->fetch()) {
-      CRM_Core_Error::fatal('map_id not found');
-    }
-
-    $map_settings = json_decode($dao->settings);
-
-    $params = [];
-    $sql_fields = [];
-    $sql_placeholders = [];
-
-    foreach ($map_settings->fields as $key => $field) {
-      $sql_fields[] = $field->column_name;
-      $params[$key] = [$values[$field->column_name], 'String']; // @todo not always a string
-      $sql_placeholders[] = '%' . $key;
-    }
-
-    $sql = 'INSERT INTO civicrm_fieldcondition_' . $map_id . ' (' . implode(',', $sql_fields) . ')
-      VALUES (' . implode(',', $sql_placeholders) . ')';
-
-    CRM_Core_DAO::executeQuery($sql, $params);
-
+    CRM_Fieldconditions_BAO_Fieldconditions::addFieldFilterValue($map_id, $values);
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     parent::postProcess();
 
