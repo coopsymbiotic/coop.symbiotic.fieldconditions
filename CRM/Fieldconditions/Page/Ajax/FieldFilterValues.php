@@ -40,6 +40,9 @@ class CRM_Fieldconditions_Page_Ajax_FieldFilterValues extends CRM_Core_Page {
             $field['column_name'] => [
               'label' => $label,
               'value' => $key,
+              // This lets the frontend know that we are displaying all options
+              // For situations where we want to unselect the only available option.
+              'all' => 1,
             ],
           ];
         }

@@ -46,6 +46,10 @@
       success: function(data) {
         var allowed_values = {};
 
+        // Checking for displaying_all avoid re-selecting an option if there was only one choice available
+        // For example: only one country is enabled, and we want to be able to leave the field empty.
+        var displaying_all = 0;
+
         $.each(data, function(index, element) {
           // Each 'element' has a list of column_name.{label,value}
           $.each(element, function(column_name, option) {
@@ -62,11 +66,15 @@
             }
 
             allowed_values[qf][option.value] = option.label;
+
+            if ('all' in option) {
+              displaying_all = 1;
+            }
           });
         });
 
         $.each(allowed_values, function(qf_name, values) {
-          CRM.fieldconditionsUpdateWidget(qf_name, values, selected_field);
+          CRM.fieldconditionsUpdateWidget(qf_name, values, selected_field, displaying_all);
         });
 
         $('#' + selected_field.qf_field).parent().find('.crm-loading-element').remove();
@@ -80,7 +88,7 @@
     });
   };
 
-  CRM.fieldconditionsUpdateWidget = function(qf_name, values, source_field) {
+  CRM.fieldconditionsUpdateWidget = function(qf_name, values, source_field, displaying_all) {
     var $select = $('#' + qf_name);
 
     // Do not update a widget that already has a value
@@ -105,7 +113,9 @@
       }
     });
 
-    if (Object.keys(values).length == 1) {
+    // Checking for displaying_all avoid re-selecting an option if there was only one choice available
+    // For example: only one country is enabled, and we want to be able to leave the field empty.
+    if (Object.keys(values).length == 1 && !displaying_all) {
       for (var property in values) {
         if (values.hasOwnProperty(property)) {
           $select.val(property);
