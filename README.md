@@ -14,7 +14,7 @@ This extension may help.
 
 In some ways, it is similar to how the state_province/country fields work, but for custom fields.
 
-The extension is still fairly experimental.
+The extension is fairly stable, but still has a few rough edges.
 
 Similar extensions:
 
@@ -53,8 +53,8 @@ https://www.symbiotic.coop
 
 # License
 
-(C) 2017-2020 Mathieu Lutfy <mathieu@symbiotic.coop>  
-(C) 2017-2020 Coop SymbioTIC <mathieu@symbiotic.coop>
+(C) 2017-2021 Mathieu Lutfy <mathieu@symbiotic.coop>  
+(C) 2017-2021 Coop SymbioTIC <mathieu@symbiotic.coop>
 
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
