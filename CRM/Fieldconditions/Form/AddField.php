@@ -76,7 +76,8 @@ class CRM_Fieldconditions_Form_AddField extends CRM_Core_Form {
 
   public function postProcess() {
     $values = $this->exportValues();
-    CRM_Fieldconditions_BAO_Fieldconditions::addFieldToMapping($values['map_id'], $values['field_name']);
+    $map_id = $values['map_id'];
+    CRM_Fieldconditions_BAO_Fieldconditions::addFieldToMapping($map_id, $values['field_name']);
     CRM_Core_Session::setStatus(ts('Saved'), '', 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/admin/fieldconditions/fields', "map_id=$map_id&reset=1"));
   }
