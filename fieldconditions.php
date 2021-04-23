@@ -246,6 +246,7 @@ function fieldconditions_civicrm_pageRun(&$page) {
 function fieldconditions_civicrm_alterContent(&$content, $context, $tplName, &$object) {
   $tpls = [
     'CRM/Contact/Form/Inline/Address.tpl',
+    'CRM/Contact/Form/Inline/CustomData.tpl',
     'CRM/Contact/Form/Contact.tpl',
   ];
 
