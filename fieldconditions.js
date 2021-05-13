@@ -90,6 +90,7 @@
 
   CRM.fieldconditionsUpdateWidget = function(qf_name, values, source_field, displaying_all) {
     var $select = $('#' + qf_name);
+    var select_original_value = $select.val();
 
     // Do not update a widget that already has a value
     // It should already be filtered to allow only valid options
@@ -101,26 +102,61 @@
       return;
     }
 
+    // If it's an autocomplete select, hide it, since it's difficult to control
+    if ($select.hasClass('crm-ajax-select')) {
+      if (values.length == 0) {
+        $select.hide();
+        $select.siblings('.select2-container').show();
+        return;
+      }
+      else {
+        // @todo Do not re-create an element if it already exists
+        var $parent = $select.parent();
+        var id = $select.attr('id');
+        $select.remove();
+
+        $select = $('<select>', {id: id, 'class': 'crm-form-select'});
+        $select.appendTo($parent);
+        $select.siblings('.select2-container').hide();
+
+        // @todo cleanup - enable event update. we have the qf_field but not the 'field' definition
+        $.each(CRM.vars.fieldconditions.maps, function(map_id, settings) {
+          $.each(settings.fields, function(index, field) {
+            if (qf_name == field.qf_field) {
+              $('#' + field.qf_field).on('change', function(event) {
+                CRM.fieldconditionsFieldLookup(field, map_id, settings);
+              });
+            }
+          });
+        });
+      }
+    }
+
     $select.html('');
     $select.append('<option value=""></option>');
 
     $.each(values, function(index, element) {
       // Rather odd, probably something we can fix in the PHP that generates the values
-      if (index != "null") {
+      if (index != "null" && index != '') {
         $select.append($('<option></option>')
           .attr('value', index)
           .html(element));
       }
     });
 
+    // If there was only one value, in a field other than the current field, then select that value.
     // Checking for displaying_all avoid re-selecting an option if there was only one choice available
     // For example: only one country is enabled, and we want to be able to leave the field empty.
-    if (Object.keys(values).length == 1 && !displaying_all) {
+    if (source_field.qf_field != qf_name && Object.keys(values).length == 1 && !displaying_all) {
       for (var property in values) {
         if (values.hasOwnProperty(property)) {
           $select.val(property);
         }
       }
+    }
+    else if (select_original_value) {
+      // Restore the value that was there before, if still valid
+      $select.val(select_original_value);
     }
 
     $select.change();

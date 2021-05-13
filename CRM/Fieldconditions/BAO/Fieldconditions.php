@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Fieldconditions_ExtensionUtil as E;
+
 class CRM_Fieldconditions_BAO_Fieldconditions {
 
   /**
@@ -137,6 +139,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       'label' => $meta['label'] ?? $meta['title'],
       'entity_field' => $fieldName,
       'entity_name' => $entityName,
+      'html_type' => $meta['html_type'],
     ];
   }
 
@@ -154,16 +157,13 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     }
 
     // Extract field definitions
-    $settings = CRM_Core_DAO::singleValueQuery('SELECT settings FROM civicrm_fieldcondition WHERE id = %1', [
-      1 => [$map_id, 'Positive'],
-    ]);
-
-    $settings = json_decode($settings, TRUE);
+    $settings = CRM_Fieldconditions_BAO_Fieldconditions::getSettings($map_id);
 
     if (empty($settings['fields'])) {
       throw new Exception('No fields in this mapping?');
     }
 
+    // Lookup possible matches from the DB
     $map_id = (int) $map_id;
     $table = 'civicrm_fieldcondition_' . $map_id;
 
@@ -196,7 +196,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       foreach ($settings['fields'] as $field) {
         $db_column_name = $field['column_name'];
         $row[$db_column_name] = [
-          'label' => self::translate($field['field_name'], $dao->{$db_column_name}),
+          'label' => self::translate($field, $dao->{$db_column_name}),
           'value' => $dao->{$db_column_name},
         ];
       }
@@ -210,8 +210,22 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
   /**
    * FIXME
    */
-  static function translate($field_name, $value) {
+  static function translate($field, $value) {
     static $cache = [];
+    $field_name = $field['field_name'];
+
+    // @todo Cache?
+    if ($field['html_type'] == 'Autocomplete-Select') {
+      $result = civicrm_api3('Contact', 'get', [
+        'id' => $value,
+        'return' => 'display_name',
+        'sequential' => 1,
+      ]);
+
+      if (!empty($result['values'][0])) {
+        return $result['values'][0]['display_name'];
+      }
+    }
 
     if (!isset($cache[$field_name])) {
       $parts = explode('.', $field_name);
@@ -254,6 +268,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       $field['entity_name'] = $meta['entity_name'];
       $field['entity_field'] = $meta['entity_field'];
       $field['field_label'] = $meta['label'];
+      $field['html_type'] = $meta['html_type'];
     }
 
     return $settings;
@@ -271,6 +286,112 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     }
 
     return $all;
+  }
+
+  /**
+   * Copied from core CRM/Contact/Page/AJAX.php
+   */
+  public static function getContactRef($custom_field_id) {
+    $name = '';
+    $cfID = $custom_field_id;
+
+    // check that this is a valid, active custom field of Contact Reference type
+    $params = ['id' => $cfID];
+    $returnProperties = ['filter', 'data_type', 'is_active'];
+    $cf = [];
+    CRM_Core_DAO::commonRetrieve('CRM_Core_DAO_CustomField', $params, $cf, $returnProperties);
+    if (!$cf['id'] || !$cf['is_active'] || $cf['data_type'] != 'ContactReference') {
+      CRM_Utils_System::civiExit(1);
+    }
+
+    if (!empty($cf['filter'])) {
+      $filterParams = [];
+      parse_str($cf['filter'], $filterParams);
+
+      $action = $filterParams['action'] ?? NULL;
+      if (!empty($action) && !in_array($action, ['get', 'lookup'])) {
+        CRM_Utils_System::civiExit(1);
+      }
+
+      if (!empty($filterParams['group'])) {
+        $filterParams['group'] = explode(',', $filterParams['group']);
+      }
+    }
+
+    $list = array_keys(CRM_Core_BAO_Setting::valueOptions(CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,
+      'contact_reference_options'
+    ), '1');
+
+    $return = array_unique(array_merge(['sort_name'], $list));
+
+    $limit = Civi::settings()->get('search_autocomplete_count');
+
+    $params = ['offset' => 0, 'rowCount' => $limit, 'version' => 3];
+    foreach ($return as $fld) {
+      $params["return.{$fld}"] = 1;
+    }
+
+    if (!empty($action)) {
+      $excludeGet = [
+        'reset',
+        'key',
+        'className',
+        'fnName',
+        'json',
+        'reset',
+        'context',
+        'timestamp',
+        'limit',
+        'id',
+        's',
+        'q',
+        'action',
+      ];
+
+      foreach ($_GET as $param => $val) {
+        if (empty($val) ||
+          in_array($param, $excludeGet) ||
+          strpos($param, 'return.') !== FALSE ||
+          strpos($param, 'api.') !== FALSE
+        ) {
+          continue;
+        }
+        $params[$param] = $val;
+      }
+    }
+
+    if ($name) {
+      $params['sort_name'] = $name;
+    }
+
+    $params['sort'] = 'sort_name';
+
+    // tell api to skip permission chk. dgg
+    $params['check_permissions'] = 0;
+
+    // add filter variable to params
+    if (!empty($filterParams)) {
+      $params = array_merge($params, $filterParams);
+    }
+
+    $contact = civicrm_api('Contact', 'Get', $params);
+
+    if (!empty($contact['is_error'])) {
+      CRM_Utils_System::civiExit(1);
+    }
+
+    $contactList = [];
+    foreach ($contact['values'] as $value) {
+      $view = [];
+      foreach ($return as $fld) {
+        if (!empty($value[$fld])) {
+          $view[] = $value[$fld];
+        }
+      }
+      $contactList[] = ['id' => $value['id'], 'text' => implode(' :: ', $view)];
+    }
+
+    return $contactList;
   }
 
 }

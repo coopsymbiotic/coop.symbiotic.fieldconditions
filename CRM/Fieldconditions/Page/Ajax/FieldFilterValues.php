@@ -31,6 +31,15 @@ class CRM_Fieldconditions_Page_Ajax_FieldFilterValues extends CRM_Core_Page {
       $rows = [];
 
       foreach ($settings['fields'] as $field) {
+        if ($field['html_type'] == 'Autocomplete-Select') {
+          $rows[] = [
+            $field['column_name'] => [
+              'autocomplete' => 1,
+            ],
+          ];
+          continue;
+        }
+
         $options = civicrm_api3($field['entity_name'], 'getoptions', [
           'field' => $field['entity_field'],
         ])['values'];
