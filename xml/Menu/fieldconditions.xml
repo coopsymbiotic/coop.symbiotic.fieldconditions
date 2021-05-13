@@ -3,26 +3,26 @@
   <item>
     <path>civicrm/admin/fieldconditions</path>
     <page_callback>CRM_Fieldconditions_Page_ListFieldMapping</page_callback>
-    <title>ListFieldMapping</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>List Field Mapping</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/fieldconditions/add-map</path>
     <page_callback>CRM_Fieldconditions_Form_FieldMapping</page_callback>
-    <title>FieldMapping</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>Field Mapping</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/fieldconditions/filter-values</path>
     <page_callback>CRM_Fieldconditions_Page_ListFieldFilterValues</page_callback>
-    <title>ListFieldFilterValues</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>List Field Filter Values</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/fieldconditions/filter-values/edit</path>
     <page_callback>CRM_Fieldconditions_Form_FieldFilterValue</page_callback>
-    <title>FieldFilterValue</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>Field Filter Value</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/fieldconditions/ajax/field-filter-values</path>
@@ -33,13 +33,13 @@
   <item>
     <path>civicrm/admin/fieldconditions/fields</path>
     <page_callback>CRM_Fieldconditions_Page_ListFields</page_callback>
-    <title>ListFields</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>List Fields</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/fieldconditions/fields/add</path>
     <page_callback>CRM_Fieldconditions_Form_AddField</page_callback>
-    <title>AddField</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <title>Add Field</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
 </menu>
