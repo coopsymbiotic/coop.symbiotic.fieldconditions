@@ -144,7 +144,8 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
   }
 
   /**
-   * Return all possible values. Used in admin forms.
+   * Main function to lookup possible matches (or to return all possible matches).
+   * Used by both the admin forms and by the end-user lookups.
    */
   static function getFieldFilterAllValues($map_id, $params = []) {
     $rows = [];
@@ -210,7 +211,8 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
   }
 
   /**
-   * FIXME
+   * Returns the human-readable value for a field.
+   * @todo There must be a core function for this?
    */
   static function translate($field, $value) {
     static $cache = [];
@@ -292,6 +294,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
 
   /**
    * Copied from core CRM/Contact/Page/AJAX.php
+   * @todo Where is this used?
    */
   public static function getContactRef($custom_field_id) {
     $name = '';
