@@ -171,7 +171,9 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     // FIXME: we should probably validate if the 'key' is valid.
     foreach ($params as $key => $val) {
       if (is_array($val) && !empty($val)) {
-        $where .= ' AND ' . $key . ' IN (' . implode(',', $val) . ')'; // FIXME FIXME FIXME
+        $key = CRM_Utils_Type::escape($key, 'MysqlColumnNameOrAlias');
+        $values = CRM_Utils_Type::validate(implode(',', $val), 'CommaSeparatedIntegers');
+        $where .= " AND $key IN ($values)";
       }
       else {
         $val = intval($val); // FIXME
