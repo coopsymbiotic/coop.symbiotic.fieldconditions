@@ -39,6 +39,11 @@ security validations).
 The extension will automatically enable the field conditions on a form if it detects
 that the fields are present.
 
+## Known issues
+
+* There may be some assuptions that field values are numeric. Ex: label = "Option A", value = 1. So if a custom field has text values (ex: value = option1), it might throw an error. This can be fixed, the validation code would need to check the type first.
+* Avoid multi-select fields, except for this specific supported use-case: "Field A" is a single-value select, and "Field B" is a multi-value select.
+
 # Support
 
 Please post bug reports in the issue tracker of this project:  

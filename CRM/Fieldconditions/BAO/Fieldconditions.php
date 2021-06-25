@@ -140,6 +140,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       'entity_field' => $fieldName,
       'entity_name' => $entityName,
       'html_type' => $meta['html_type'],
+      'serialize' => $meta['serialize'] ?? false,
     ];
   }
 
@@ -171,6 +172,17 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     // This is used by AJAX queries
     // FIXME: we should probably validate if the 'key' is valid.
     foreach ($params as $key => $val) {
+      // Ignore the field if it is a multi-select field, which is equivalent to
+      // looking up all possible combinations as if said field had not been selected.
+      // We only check this if there is more than one selection. Otherwise FieldA will allow invalid selections.
+      // @todo This only works if: FieldA is single, FieldB is multi, and no fieldC. This conditions should
+      // probably either do some OR statements for multiselect fields, or some fancier logic.
+      if (count($params) > 1) {
+        if (self::getFieldPropertyFromSettings($settings, 'column_name', $key, 'serialize')) {
+          continue;
+        }
+      }
+
       if (is_array($val) && !empty($val)) {
         $key = CRM_Utils_Type::escape($key, 'MysqlColumnNameOrAlias');
         $values = CRM_Utils_Type::validate(implode(',', $val), 'CommaSeparatedIntegers');
@@ -208,6 +220,24 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     }
 
     return $rows;
+  }
+
+  /**
+   * Returns a field property from the settings.
+   * If we keyed settings by field_name, we could remove this function.
+   */
+  static function getFieldPropertyFromSettings($settings, $match_prop, $prop_name, $return_prop) {
+    if (empty($settings['fields'])) {
+      return false;
+    }
+
+    foreach ($settings['fields'] as $key => $val) {
+      if ($val[$match_prop] == $prop_name) {
+        return $val[$return_prop];
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -273,6 +303,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       $field['entity_field'] = $meta['entity_field'];
       $field['field_label'] = $meta['label'];
       $field['html_type'] = $meta['html_type'];
+      $field['serialize'] = $meta['serialize'] ?? false;
     }
 
     return $settings;
