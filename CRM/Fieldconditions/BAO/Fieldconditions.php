@@ -171,13 +171,17 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
 
     // This is used by AJAX queries
     // FIXME: we should probably validate if the 'key' is valid.
+    $param_counter = 0;
+
     foreach ($params as $key => $val) {
       // Ignore the field if it is a multi-select field, which is equivalent to
       // looking up all possible combinations as if said field had not been selected.
       // We only check this if there is more than one selection. Otherwise FieldA will allow invalid selections.
       // @todo This only works if: FieldA is single, FieldB is multi, and no fieldC. This conditions should
       // probably either do some OR statements for multiselect fields, or some fancier logic.
-      if (count($params) > 1) {
+      $param_counter++;
+
+      if (count($params) > 1 && $param_counter > 1) {
         if (self::getFieldPropertyFromSettings($settings, 'column_name', $key, 'serialize')) {
           continue;
         }
