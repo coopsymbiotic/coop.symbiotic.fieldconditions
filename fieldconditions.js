@@ -115,7 +115,7 @@
         var id = $select.attr('id');
         $select.remove();
 
-        $select = $('<select>', {id: id, 'class': 'crm-form-select'});
+        $select = $('<select>', {id: id, name: id, 'class': 'crm-form-select'});
         $select.appendTo($parent);
         $select.siblings('.select2-container').hide();
 

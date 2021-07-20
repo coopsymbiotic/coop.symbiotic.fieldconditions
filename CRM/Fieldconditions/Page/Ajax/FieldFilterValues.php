@@ -26,39 +26,14 @@ class CRM_Fieldconditions_Page_Ajax_FieldFilterValues extends CRM_Core_Page {
       }
     }
 
+    $rows = CRM_Fieldconditions_BAO_Fieldconditions::getFieldFilterAllValues($map_id, $params);
+
     if (empty($params)) {
-      // Value was deselected, return all possible values
-      $rows = [];
-
-      foreach ($settings['fields'] as $field) {
-        if ($field['html_type'] == 'Autocomplete-Select') {
-          $rows[] = [
-            $field['column_name'] => [
-              'autocomplete' => 1,
-            ],
-          ];
-          continue;
-        }
-
-        $options = civicrm_api3($field['entity_name'], 'getoptions', [
-          'field' => $field['entity_field'],
-        ])['values'];
-
-        foreach ($options as $key => $label) {
-          $rows[] = [
-            $field['column_name'] => [
-              'label' => $label,
-              'value' => $key,
-              // This lets the frontend know that we are displaying all options
-              // For situations where we want to unselect the only available option.
-              'all' => 1,
-            ],
-          ];
-        }
+      // This lets the frontend know that we are displaying all options
+      // For situations where we want to unselect the only available option.
+      foreach ($rows as &$row) {
+        $row['column_name']['all'] = 1;
       }
-    }
-    else {
-      $rows = CRM_Fieldconditions_BAO_Fieldconditions::getFieldFilterAllValues($map_id, $params);
     }
 
     echo json_encode($rows);
