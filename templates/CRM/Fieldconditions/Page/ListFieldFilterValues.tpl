@@ -25,5 +25,5 @@
 {/foreach}
 </table>
 
-<div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/filter-values/edit?reset=1&map_id={$map_id}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new</span></a></div>
+  <div style="padding: 1em;"><a href="{crmURL p='civicrm/admin/fieldconditions/filter-values/edit' q="reset=1&map_id=`$map_id`"}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field filter value</span></a></div>
 {/crmScope}
