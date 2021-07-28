@@ -16,4 +16,4 @@
 {/foreach}
 </table>
 
-<div style="padding: 1em;"><a href="/civicrm/admin/fieldconditions/fields/add?reset=1&map_id={$map_id}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field</span></a></div>
+<div style="padding: 1em;"><a href="{crmURL p='civicrm/admin/fieldconditions/fields/add' q="reset=1&map_id=`$map_id`"}" class="button action-item"><span><span class="icon ui-icon-circle-plus"></span> Add new field</span></a></div>
