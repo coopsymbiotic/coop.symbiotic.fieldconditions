@@ -223,6 +223,32 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       $rows[] = $row;
     }
 
+    // Very specific hack for: If FieldA is multiselect and we want to allow multiple selections of FieldA
+    // This will add all possible options for FieldA.
+    $keys = array_keys($params);
+
+    if (!empty($keys)) {
+      if (self::getFieldPropertyFromSettings($settings, 'column_name', $keys[0], 'serialize')) {
+        $sql = 'SELECT DISTINCT(' . $keys[0] . ') FROM ' . $table . ' vf ORDER BY vf.id ASC';
+        $dao = CRM_Core_DAO::executeQuery($sql);
+
+        while ($dao->fetch()) {
+          $row = [];
+          $row['id'] = $dao->id;
+
+          foreach ($settings['fields'] as $field) {
+            $db_column_name = $field['column_name'];
+            $row[$db_column_name] = [
+              'label' => self::translate($field, $dao->{$db_column_name}),
+              'value' => $dao->{$db_column_name},
+            ];
+          }
+
+          $rows[] = $row;
+        }
+      }
+    }
+
     return $rows;
   }
 

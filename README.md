@@ -42,7 +42,9 @@ that the fields are present.
 ## Known issues
 
 * There may be some assuptions that field values are numeric. Ex: label = "Option A", value = 1. So if a custom field has text values (ex: value = option1), it might throw an error. This can be fixed, the validation code would need to check the type first.
-* Avoid multi-select fields, except for this specific supported use-case: "Field A" is a single-value select, and "Field B" is a multi-value select.
+* Avoid multi-select fields, except for these specific supported use-cases:
+  * "Field A" is a single-value select, and "Field B" is a multi-value select.
+  * "Field A" is multi-select, and "Field B" is multi-select. Then all FieldA options will always be available, so that multiple FieldA options can be selected (but FieldB will be filtered using FieldA selections).
 
 # Support
 
