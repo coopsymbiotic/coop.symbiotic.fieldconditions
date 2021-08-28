@@ -13,6 +13,12 @@
         $('#' + field.qf_field).on('change', function(event) {
           CRM.fieldconditionsFieldLookup(field, map_id, settings);
         });
+
+        // If there are already values in the field, trigger a refresh of the available options
+        // @todo use hook_civicrm_fieldOptions instead?
+        if ($('#' + field.qf_field).val()) {
+          CRM.fieldconditionsFieldLookup(field, map_id, settings);
+        }
       });
     });
   };
@@ -98,8 +104,10 @@
     // However, we still update the field that was selected, because
     // if {A,B,C} was previously possible, but now that "A" was selected,
     // with the values of other fields, maybe {B,C} are not valid options anymore.
+    // [UPDATE] Returning here causes problems if we still want to filter the allowed options
+    // and not allow selecting an invalid value afterwards.
     if ($select.val() && qf_name != source_field.qf_field) {
-      return;
+      // return;
     }
 
     // If it's an autocomplete select, hide it, since it's difficult to control
