@@ -117,7 +117,7 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
     $map_id = $values['map_id'];
 
     if (isset($values['action']) && $values['action'] & CRM_Core_Action::DELETE) {
-      CRM_Core_DAO::executeQuery("DELETE FROM civicrm_fieldcondition_valuefilter_" . intval($map_id) . " WHERE id = %1", [
+      CRM_Core_DAO::executeQuery("DELETE FROM civicrm_fieldcondition_" . intval($map_id) . " WHERE id = %1", [
         1 => [$values['id'], 'Positive'],
       ]);
 
