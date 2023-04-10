@@ -19,18 +19,8 @@ class CRM_Fieldconditions_Page_ListFieldMapping extends CRM_Core_Page {
       CRM_Utils_System::redirect($url);
     }
 
-    $maps = [];
-    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_fieldcondition m');
-
-    while ($dao->fetch()) {
-      $maps[] = [
-        'id' => $dao->id,
-        'type' => $dao->type,
-        'name' => $dao->name,
-      ];
-    }
-
-    $this->assign('field_maps', $maps);
+    $fieldConditions = (array) \Civi\Api4\FieldCondition::get(FALSE)->execute();
+    $this->assign('field_maps', $fieldConditions);
 
     parent::run();
   }
