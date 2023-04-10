@@ -20,12 +20,14 @@
   </primaryKey>
   <field>
     <name>type</name>
-    <type>varchar(32)</type>
+    <type>varchar</type>
+    <length>32</length>
     <comment>Type of fieldcondition (ex: filter)</comment>
   </field>
   <field>
     <name>name</name>
-    <type>varchar(255)</type>
+    <type>varchar</type>
+    <length>255</length>
     <comment>Map name visible to admins</comment>
   </field>
   <field>
