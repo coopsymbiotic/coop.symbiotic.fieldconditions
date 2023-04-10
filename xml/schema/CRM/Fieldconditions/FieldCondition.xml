@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<table>
+  <base>CRM/Fieldconditions</base>
+  <class>FieldCondition</class>
+  <name>civicrm_fieldcondition</name>
+  <comment>Field Condition map</comment>
+  <log>true</log>
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique FieldCondition map ID</comment>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+    <name>type</name>
+    <type>varchar(32)</type>
+    <comment>Type of fieldcondition (ex: filter)</comment>
+  </field>
+  <field>
+    <name>name</name>
+    <type>varchar(255)</type>
+    <comment>Map name visible to admins</comment>
+  </field>
+  <field>
+    <name>settings</name>
+    <type>text</type>
+    <comment>JSON blob with map settings</comment>
+  </field>
+  <foreignKey>
+    <name>contact_id</name>
+    <table>civicrm_contact</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+</table>
