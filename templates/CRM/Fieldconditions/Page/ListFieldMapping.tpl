@@ -1,4 +1,4 @@
-{crmScope key='coop.symbiotic.fieldconditions'}
+{crmScope extensionKey='coop.symbiotic.fieldconditions'}
 <table>
 <tr>
   <th>{ts}ID{/ts}</th>
