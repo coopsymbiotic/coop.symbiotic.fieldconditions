@@ -188,3 +188,18 @@ function fieldconditions_civicrm_alterContent(&$content, $context, $tplName, &$o
     }
   }
 }
+
+/**
+ * Implements hook_civicrm_advimport_helpers()
+ */
+function fieldconditions_civicrm_advimport_helpers(&$helpers) {
+  $fieldConditions = \Civi\Api4\FieldCondition::get(FALSE)->execute();
+
+  foreach ($fieldConditions as $fieldCondition) {
+    $helpers[] = [
+      'class' => 'CRM_Fieldconditions_Advimport_Generic',
+      'label' => E::ts('Field Conditions: %1', [1 => $fieldCondition['name']]),
+      'fieldcondition_id' => $fieldCondition['id'],
+    ];
+  }
+}
