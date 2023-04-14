@@ -28,7 +28,7 @@
     <path>civicrm/fieldconditions/ajax/field-filter-values</path>
     <page_callback>CRM_Fieldconditions_Page_Ajax_FieldFilterValues</page_callback>
     <title>Ajax</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>access CiviCRM;access AJAX API</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/fieldconditions/fields</path>
