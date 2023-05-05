@@ -355,7 +355,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
 
   /**
    * Copied from core CRM/Contact/Page/AJAX.php
-   * @todo Where is this used?
+   * Used in the settings to add possible value combinations.
    */
   public static function getContactRef($custom_field_id) {
     $name = '';
@@ -367,7 +367,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     $cf = [];
     CRM_Core_DAO::commonRetrieve('CRM_Core_DAO_CustomField', $params, $cf, $returnProperties);
     if (!$cf['id'] || !$cf['is_active'] || $cf['data_type'] != 'ContactReference') {
-      CRM_Utils_System::civiExit(1);
+      throw new Exception('Not a ContactReference');
     }
 
     if (!empty($cf['filter'])) {
@@ -376,7 +376,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
 
       $action = $filterParams['action'] ?? NULL;
       if (!empty($action) && !in_array($action, ['get', 'lookup'])) {
-        CRM_Utils_System::civiExit(1);
+        throw new Exception('Action is not get or lookup');
       }
 
       if (!empty($filterParams['group'])) {
@@ -389,8 +389,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
     ), '1');
 
     $return = array_unique(array_merge(['sort_name'], $list));
-
-    $limit = Civi::settings()->get('search_autocomplete_count');
+    $limit = 0;
 
     $params = ['offset' => 0, 'rowCount' => $limit, 'version' => 3];
     foreach ($return as $fld) {
@@ -440,11 +439,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
       $params = array_merge($params, $filterParams);
     }
 
-    $contact = civicrm_api('Contact', 'Get', $params);
-
-    if (!empty($contact['is_error'])) {
-      CRM_Utils_System::civiExit(1);
-    }
+    $contact = civicrm_api3('Contact', 'Get', $params);
 
     $contactList = [];
     foreach ($contact['values'] as $value) {
@@ -454,7 +449,7 @@ class CRM_Fieldconditions_BAO_Fieldconditions {
           $view[] = $value[$fld];
         }
       }
-      $contactList[] = ['id' => $value['id'], 'text' => implode(' :: ', $view)];
+      $contactList[$value['id']] = implode(' :: ', $view);
     }
 
     return $contactList;

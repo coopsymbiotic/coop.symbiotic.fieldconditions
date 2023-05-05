@@ -87,13 +87,19 @@ class CRM_Fieldconditions_Form_FieldFilterValue extends CRM_Core_Form {
 
     foreach ($settings['fields'] as $field) {
       $meta = CRM_Fieldconditions_BAO_Fieldconditions::getFieldMeta($field['field_name']);
+      $options = [];
 
-      $result = civicrm_api3($meta['entity_name'], 'getoptions', [
-        'field' => $meta['entity_field'],
-        'option.limit' => 0,
-      ]);
+      if ($meta['html_type'] == 'Autocomplete-Select' && preg_match('/^custom_(\d+)$/', $meta['entity_field'], $matches)) {
+        $options = CRM_Fieldconditions_BAO_Fieldconditions::getContactRef($matches[1]);
+      }
+      else {
+        $options = civicrm_api3($meta['entity_name'], 'getoptions', [
+          'field' => $meta['entity_field'],
+          'option.limit' => 0,
+        ])['values'];
+      }
 
-      $options = ['' => ts('- select -')] + $result['values'];
+      $options = ['' => ts('- select -')] + $options;
 
       $this->add('select', $field['column_name'], $meta['label'], $options, TRUE,
         array('id' => $field['column_name'], 'class' => 'crm-select2')
